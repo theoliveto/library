@@ -8,8 +8,9 @@
 
 <script lang="ts" setup></script>
 
-<style scoped>
+<style>
   #app {
-    font-family: 'IBM Plex Sans Variable', sans-serif;
+    font-family: 'Geist Variable', sans-serif;
+    letter-spacing: -1px;
   }
 </style>
