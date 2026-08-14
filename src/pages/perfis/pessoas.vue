@@ -3,39 +3,37 @@
         <HeaderComponent />
 
         <v-main>
-            <v-container fluid class="mt-n3">
+            <v-container fluid class="mt-n5">
                 <v-breadcrumbs :items="items">
                     <template #divider>
                         <v-icon icon="mdi-chevron-right" />
                     </template>
                 </v-breadcrumbs>
 
-                <v-sheet border rounded>
+                <v-sheet border rounded class="mt-n3">
                     <v-data-table :headers="headers" :items="pessoas" :search="search">
                         <template #top>
                             <v-toolbar flat>
                                 <v-toolbar-title>
                                     <v-icon color="medium-emphasis" icon="mdi-account-group-outline" size="default" start />
-                                    Pessoas
+                                    <span class="font-spacing">Pessoas</span>
                                 </v-toolbar-title>
 
                                 <v-spacer />
 
                                 <v-text-field
+                                    label="Pesquisar"
                                     v-model="search"
                                     density="compact"
-                                    label="Pesquisar..."
-                                    prepend-inner-icon="mdi-magnify"
                                     variant="outlined"
-                                    flat
+                                    persistent-placeholder
                                     hide-details
-                                    single-line
                                     clearable
                                     class="me-4"
                                     max-width="300"
                                 />
 
-                                <v-btn class="me-2" prepend-icon="mdi-plus" rounded="lg" text="Novo" border @click="add" />
+                                <v-btn class="me-2 pa-5 bg-light-blue-darken-3" color="white" prepend-icon="mdi-plus" text="Novo" border @click="add" />
                             </v-toolbar>
                         </template>
 
@@ -60,88 +58,242 @@
                 </v-sheet>
             </v-container>
 
-            <v-dialog v-model="dialog" max-width="500">
-                <v-card
-                    :subtitle="`${editando ? 'Atualizar' : 'Cadastrar'} registro`"
-                    :title="`${editando ? 'Editando' : 'Inserindo'} uma pessoa`"
-                >
+            <v-dialog v-model="dialog" max-width="1000">
+                <v-card>
+                    <v-card-title class="d-flex align-center bg-blue-lighten-4 pa-5">
+                        <div class="font-spacing">
+                            <div class="text-headline-small font-weight-medium">{{ `${editando ? 'Editando' : 'Inserindo'} uma pessoa` }}</div>
+                            <div class="text-title-medium font-weight-light">{{ `${editando ? 'Atualizar' : 'Cadastrar'} registro` }}</div>
+                        </div>
+
+                        <v-spacer />
+
+                        <v-switch
+                            label="Pessoa Jurídica"
+                            v-model="ativo"
+                            color="primary"
+                            hide-details
+                        />
+                    </v-card-title>
+
                     <v-tabs v-model="tab" color="primary">
-                        <v-tab value="one">Item One</v-tab>
-                        <v-tab value="two">Item Two</v-tab>
-                        <v-tab value="three">Item Three</v-tab>
+                        <v-tab value="one">Dados Pessoais</v-tab>
+                        <v-tab value="two">Endereço</v-tab>
+                        <v-tab value="three">Outros</v-tab>
                     </v-tabs>
 
                     <v-divider />
 
                     <v-tabs-window v-model="tab">
                         <v-tabs-window-item value="one">
-                            <template #default>
-                                <v-row>
-                                    <v-col cols="12">
-                                        <v-text-field
-                                            v-model="formModel.nome"
-                                            label="Nome *"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                        />
-                                    </v-col>
+                            <v-sheet class="pa-4">
+                                <template #default>
+                                    <v-row class="mt-3">
+                                        <v-col cols="12">
+                                            <v-text-field
+                                                v-model="formModel.nome"
+                                                label="Nome *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
 
-                                    <v-col cols="12" md="6">
-                                        <v-text-field
-                                            class="mt-n5"
-                                            v-model="formModel.email"
-                                            label="E-mail *"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                        />
-                                    </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                class="mt-n5"
+                                                v-model="formModel.email"
+                                                label="E-mail *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
 
-                                    <v-col cols="12" md="6">
-                                        <v-select
-                                            class="mt-n5"
-                                            v-model="formModel.genero"
-                                            label="Gênero *"
-                                            :items="['Masculino', 'Feminino']"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                        />
-                                    </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-select
+                                                class="mt-n5"
+                                                v-model="formModel.genero"
+                                                label="Gênero *"
+                                                :items="['Masculino', 'Feminino']"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
 
-                                    <v-col cols="12" md="6">
-                                        <v-text-field
-                                            class="mt-n5"
-                                            v-model="formModel.cpfCnpj"
-                                            label="CPF/CNPJ *"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                        />
-                                    </v-col>
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                class="mt-n5"
+                                                v-model="formModel.cpfCnpj"
+                                                label="CPF/CNPJ *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
 
-                                    <v-col cols="12" md="6">
-                                        <v-date-input
-                                            class="mt-n5"
-                                            v-model="formModel.nascimento"
-                                            label="Dt. Nascimento *"
-                                            prepend-icon=""
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                        />
-                                    </v-col>
-                                </v-row>
-                            </template>
+                                        <v-col cols="12" md="6">
+                                            <v-date-input
+                                                class="mt-n5"
+                                                v-model="formModel.nascimento"
+                                                label="Dt. Nascimento *"
+                                                prepend-icon=""
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+                                    </v-row>
+                                </template>
+                            </v-sheet>
                         </v-tabs-window-item>
 
                         <v-tabs-window-item value="two">
-                            <v-sheet class="pa-5" color="orange">Two</v-sheet>
+                            <v-sheet class="pa-4">
+                                <template #default>
+                                    <v-row class="mt-3">
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formModel.cep"
+                                                label="CEP *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="4">
+                                            <v-text-field
+                                                v-model="formModel.cidade"
+                                                label="Cidade *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="4">
+                                            <v-select
+                                                v-model="formModel.estado"
+                                                label="Estado *"
+                                                :items="estados"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                class="mt-n5"
+                                                v-model="formModel.endereco"
+                                                label="Endereço *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                class="mt-n5"
+                                                v-model="formModel.bairro"
+                                                label="Bairro *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                class="mt-n5"
+                                                v-model="formModel.numero"
+                                                label="Número *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                class="mt-n5"
+                                                v-model="formModel.complemento"
+                                                label="Complemento *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+                                    </v-row>
+                                </template>
+                            </v-sheet>
                         </v-tabs-window-item>
 
                         <v-tabs-window-item value="three">
-                            <v-sheet class="pa-5" color="brown">Three</v-sheet>
+                            <v-sheet class="pa-4">
+                                <template #default>
+                                    <v-row class="mt-3">
+                                        <v-col cols="12">
+                                            <v-text-field
+                                                v-model="formModel.nome"
+                                                label="Nome *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                class="mt-n5"
+                                                v-model="formModel.email"
+                                                label="E-mail *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-select
+                                                class="mt-n5"
+                                                v-model="formModel.genero"
+                                                label="Gênero *"
+                                                :items="['Masculino', 'Feminino']"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-text-field
+                                                class="mt-n5"
+                                                v-model="formModel.cpfCnpj"
+                                                label="CPF/CNPJ *"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-date-input
+                                                class="mt-n5"
+                                                v-model="formModel.nascimento"
+                                                label="Dt. Nascimento *"
+                                                prepend-icon=""
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+                                    </v-row>
+                                </template>
+                            </v-sheet>
                         </v-tabs-window-item>
                     </v-tabs-window>
 
@@ -157,15 +309,12 @@
                 </v-card>
             </v-dialog>
         </v-main>
-
-        <FooterComponent />
     </v-app>
 </template>
 
 <script lang="ts">
     import { defineComponent } from 'vue'
 
-    import FooterComponent from '@/components/FooterComponent.vue'
     import HeaderComponent from '@/components/HeaderComponent.vue'
 
     interface Pessoa {
@@ -175,6 +324,13 @@
         cpfCnpj: string
         genero: string
         nascimento: string
+        cep: string
+        cidade: string
+        estado: string
+        endereco: string
+        bairro: string
+        numero: string
+        complemento: string
     }
 
     interface Breadcrumb {
@@ -195,7 +351,6 @@
 
         components: {
             HeaderComponent,
-            FooterComponent,
         },
 
         data () {
@@ -220,11 +375,19 @@
                     cpfCnpj: '',
                     genero: '',
                     nascimento: '',
+                    cep: '',
+                    cidade: '',
+                    estado: '',
+                    endereco: '',
+                    bairro: '',
+                    numero: '',
+                    complemento: '',
                 } as Pessoa,
 
                 dialog: false,
 
                 headers: [
+                    { title: 'ID', key: 'id' },
                     { title: 'Nome', key: 'nome', align: 'start' },
                     { title: 'E-mail', key: 'email' },
                     { title: 'CPF/CNPJ', key: 'cpfCnpj' },
@@ -232,6 +395,38 @@
                     { title: 'Nascimento', key: 'nascimento', align: 'end' },
                     { title: 'Ações', key: 'actions', align: 'end', sortable: false },
                 ] as Cabecalhos[],
+
+                estados: [
+                    'Acre (AC)',
+                    'Alagoas (AL)',
+                    'Amapá (AP)',
+                    'Amazonas (AM)',
+                    'Bahia (BA)',
+                    'Ceará (CE)',
+                    'Distrito Federal (DF)',
+                    'Espírito Santo (ES)',
+                    'Goiás (GO)',
+                    'Maranhão (MA)',
+                    'Mato Grosso (MT)',
+                    'Mato Grosso do Sul (MS)',
+                    'Minas Gerais (MG)',
+                    'Pará (PA)',
+                    'Paraíba (PB)',
+                    'Paraná (PR)',
+                    'Pernambuco (PE)',
+                    'Piauí (PI)',
+                    'Rio de Janeiro (RJ)',
+                    'Rio Grande do Norte (RN)',
+                    'Rio Grande do Sul (RS)',
+                    'Rondônia (RO)',
+                    'Roraima (RR)',
+                    'Santa Catarina (SC)',
+                    'São Paulo (SP)',
+                    'Sergipe (SE)',
+                    'Tocantins (TO)',
+                ],
+
+                ativo: false,
             }
         },
 
@@ -253,6 +448,13 @@
                     cpfCnpj: '',
                     genero: '',
                     nascimento: '',
+                    cep: '',
+                    cidade: '',
+                    estado: '',
+                    endereco: '',
+                    bairro: '',
+                    numero: '',
+                    complemento: '',
                 }
             },
 
@@ -296,9 +498,29 @@
                 this.dialog = false
                 this.formModel = this.newRecord()
                 this.pessoas = [
-                    { id: 1, nome: 'Oliveto Vinicius Di Domenico', email: 'olivetoovinicius@gmail.com', cpfCnpj: '115.407.919-80', genero: 'Masculino', nascimento: '05/03/2001' },
+                    {
+                        id: 1,
+                        nome: 'Oliveto Vinicius Di Domenico',
+                        email: 'olivetoovinicius@gmail.com',
+                        cpfCnpj: '115.407.919-80',
+                        genero: 'Masculino',
+                        nascimento: '05/03/2001',
+                        cep: '12345-678',
+                        cidade: 'São Paulo',
+                        estado: 'São Paulo (SP)',
+                        endereco: 'Rua Exemplo',
+                        bairro: 'Bairro Exemplo',
+                        numero: '123',
+                        complemento: 'Apto 456',
+                    },
                 ]
             },
         },
     })
 </script>
+
+<style scoped>
+    .font-spacing {
+        letter-spacing: -1px;
+    }
+</style>

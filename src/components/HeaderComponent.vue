@@ -1,8 +1,6 @@
 <template>
-    <v-navigation-drawer v-model="drawer" color="blue-grey-darken-3">
-        <v-list>
-            <v-list-item title="Menu" class="menuSize" />
-
+    <v-navigation-drawer v-model="drawer" color="blue-grey-darken-4" width="250">
+        <v-list density="compact">
             <v-list-item to="/" prepend-icon="mdi-home-variant-outline" title="Home" />
 
             <v-list-group value="Perfis">
@@ -119,10 +117,6 @@
 </script>
 
 <style scoped>
-    .menuSize {
-        height: 57px;
-    }
-
     .setback {
         margin-left: -30px;
     }

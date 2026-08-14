@@ -3,85 +3,117 @@
     <HeaderComponent />
 
     <v-main>
-      <v-container class="mt-5">
-        <v-row class="align-center justify-center" density="comfortable">
+      <v-container fluid class="mt-n5">
+        <v-breadcrumbs :items="items">
+            <template #divider>
+                <v-icon icon="mdi-chevron-right" />
+            </template>
+        </v-breadcrumbs>
+
+        <v-row class="align-center justify-center mt-n3" density="comfortable">
           <v-col cols="3">
-            <v-card class="mx-auto" subtitle="prepend and append" title="Icons">
-              <template #prepend>
-                <v-icon color="primary" icon="mdi-account" />
-              </template>
-
-              <template #append>
-                <v-icon color="success" icon="mdi-check" />
-              </template>
-
-              <v-card-text>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.</v-card-text>
-            </v-card>
+            <CardPerfisComponent />
           </v-col>
 
           <v-col cols="3">
-            <v-card class="mx-auto" subtitle="prepend and append" title="Icons">
-              <template #prepend>
-                <v-icon color="primary" icon="mdi-account" />
-              </template>
-
-              <template #append>
-                <v-icon color="success" icon="mdi-check" />
-              </template>
-
-              <v-card-text>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.</v-card-text>
-            </v-card>
+            <CardLivrosComponent />
           </v-col>
 
           <v-col cols="3">
-            <v-card class="mx-auto" subtitle="prepend and append" title="Icons">
-              <template #prepend>
-                <v-icon color="primary" icon="mdi-account" />
-              </template>
-
-              <template #append>
-                <v-icon color="success" icon="mdi-check" />
-              </template>
-
-              <v-card-text>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.</v-card-text>
-            </v-card>
+            <CardMultasComponent />
           </v-col>
 
           <v-col cols="3">
-            <v-card class="mx-auto" subtitle="prepend and append" title="Icons">
-              <template #prepend>
-                <v-icon color="primary" icon="mdi-account" />
-              </template>
+            <CardMultasComponent />
+          </v-col>
+        </v-row>
 
-              <template #append>
-                <v-icon color="success" icon="mdi-check" />
-              </template>
+        <v-row class="align-center justify-center mt-10" density="comfortable">
+          <v-col cols="6">
+            <GraphComponent
+              titulo="Vendas"
+              subtitulo="Valores totais mensais"
+              nome-serie="Vendas"
+              :categorias="[
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun'
+              ]"
+              :valores="[
+                120,
+                180,
+                150,
+                220,
+                280,
+                320
+              ]"
+            />
+          </v-col>
 
-              <v-card-text>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.</v-card-text>
-            </v-card>
+          <v-col cols="6">
+            <GraphComponent
+              tipo="area"
+              titulo="Acessos"
+              subtitulo="Número de acessos ao sistema"
+              nome-serie="Acessos"
+              :categorias="[
+                'Jan',
+                'Fev',
+                'Mar',
+                'Abr',
+                'Mai',
+                'Jun'
+              ]"
+              :valores="[
+                120,
+                180,
+                150,
+                220,
+                280,
+                320
+              ]"
+            />
           </v-col>
         </v-row>
       </v-container>
     </v-main>
-
-    <FooterComponent />
   </v-app>
 </template>
 
 <script lang="ts">
-  import FooterComponent from '@/components/FooterComponent.vue'
   import HeaderComponent from '@/components/HeaderComponent.vue'
+  import CardPerfisComponent from '@/components/Dashboard/CardPerfisComponent.vue'
+  import CardLivrosComponent from '@/components/Dashboard/CardLivrosComponent.vue'
+  import CardMultasComponent from '@/components/Dashboard/CardMultasComponent.vue'
+  import GraphComponent from '@/components/GraphComponent.vue'
+
+  interface Breadcrumb {
+    title: string
+    disabled: boolean
+    href?: string
+  }
 
   export default {
     name: 'IndexPage',
     data () {
       return {
         user: 'Oliveto',
+
+        items: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Dashboard', disabled: true },
+        ] as Breadcrumb[],
       }
     },
     components: {
       HeaderComponent,
-      FooterComponent,
+      CardPerfisComponent,
+      CardLivrosComponent,
+      CardMultasComponent,
+      GraphComponent,
     },
   }
 </script>
