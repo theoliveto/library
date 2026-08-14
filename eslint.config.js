@@ -13,6 +13,9 @@ export default vuetify(
       'vue/order-in-components': 'off',
       'perfectionist/sort-imports': 'off',
       'unicorn/no-this-outside-of-class': 'off',
+      'unicorn/prefer-includes-over-repeated-comparisons': 'off',
+      '@stylistic/indent': 'off',
+      'regexp/no-obscure-range': 'off',
     },
   },
 )

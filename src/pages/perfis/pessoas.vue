@@ -39,8 +39,8 @@
 
                         <template #item.actions="{ item }">
                             <div class="d-flex ga-2 justify-end">
-                                <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="item.id !== undefined && edit(item.id)" />
-                                <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="item.id !== undefined && delete(item.id)" />
+                                <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="item.cdPessoa !== undefined && edit(item.cdPessoa)" />
+                                <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="item.cdPessoa !== undefined && delete(item.cdPessoa)" />
                             </div>
                         </template>
 
@@ -69,8 +69,8 @@
                         <v-spacer />
 
                         <v-switch
-                            label="Pessoa Jurídica"
-                            v-model="ativo"
+                            label="Ativo"
+                            v-model="formModel.xAtivo"
                             color="primary"
                             hide-details
                         />
@@ -79,7 +79,6 @@
                     <v-tabs v-model="tab" color="primary">
                         <v-tab value="one">Dados Pessoais</v-tab>
                         <v-tab value="two">Endereço</v-tab>
-                        <v-tab value="three">Outros</v-tab>
                     </v-tabs>
 
                     <v-divider />
@@ -89,10 +88,23 @@
                             <v-sheet class="pa-4">
                                 <template #default>
                                     <v-row class="mt-3">
-                                        <v-col cols="12">
+                                        <v-col cols="6">
                                             <v-text-field
-                                                v-model="formModel.nome"
-                                                label="Nome *"
+                                                v-model="formModel.dsPessoa"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            >
+                                            <template #label>
+                                                Nome <span class="text-error">*</span>
+                                            </template>
+                                            </v-text-field>
+                                        </v-col>
+
+                                        <v-col cols="6">
+                                            <v-text-field
+                                                v-model="formModel.nrCpf"
+                                                label="CPF *"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
@@ -102,7 +114,7 @@
                                         <v-col cols="12" md="6">
                                             <v-text-field
                                                 class="mt-n5"
-                                                v-model="formModel.email"
+                                                v-model="formModel.dsEmail"
                                                 label="E-mail *"
                                                 variant="outlined"
                                                 persistent-placeholder
@@ -111,22 +123,10 @@
                                         </v-col>
 
                                         <v-col cols="12" md="6">
-                                            <v-select
-                                                class="mt-n5"
-                                                v-model="formModel.genero"
-                                                label="Gênero *"
-                                                :items="['Masculino', 'Feminino']"
-                                                variant="outlined"
-                                                persistent-placeholder
-                                                clearable
-                                            />
-                                        </v-col>
-
-                                        <v-col cols="12" md="6">
                                             <v-text-field
                                                 class="mt-n5"
-                                                v-model="formModel.cpfCnpj"
-                                                label="CPF/CNPJ *"
+                                                v-model="formModel.nrTelefone"
+                                                label="Telefone *"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
@@ -136,12 +136,38 @@
                                         <v-col cols="12" md="6">
                                             <v-date-input
                                                 class="mt-n5"
-                                                v-model="formModel.nascimento"
+                                                v-model="formModel.dtNascimento"
                                                 label="Dt. Nascimento *"
                                                 prepend-icon=""
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="6">
+                                            <v-select
+                                                class="mt-n5"
+                                                v-model="formModel.dsGenero"
+                                                label="Gênero *"
+                                                :items="['Masculino', 'Feminino']"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                            />
+                                        </v-col>
+
+                                        <v-col cols="12" md="12">
+                                            <v-textarea
+                                                class="mt-n5"
+                                                v-model="formModel.dsObservacoes"
+                                                label="Observações"
+                                                row-height="25"
+                                                rows="3"
+                                                variant="outlined"
+                                                persistent-placeholder
+                                                clearable
+                                                auto-grow
                                             />
                                         </v-col>
                                     </v-row>
@@ -155,8 +181,15 @@
                                     <v-row class="mt-3">
                                         <v-col cols="12" md="4">
                                             <v-text-field
-                                                v-model="formModel.cep"
+                                                v-model="formModel.nrCep"
                                                 label="CEP *"
+                                                v-mask="'#####-###'"
+                                                maxlength="9"
+                                                :loading="loadingCep"
+                                                :error-messages="cepError"
+                                                @update:model-value="formatarCep"
+                                                @blur="buscarCep"
+                                                inputmode="numeric"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
@@ -165,7 +198,7 @@
 
                                         <v-col cols="12" md="4">
                                             <v-text-field
-                                                v-model="formModel.cidade"
+                                                v-model="formModel.dsCidade"
                                                 label="Cidade *"
                                                 variant="outlined"
                                                 persistent-placeholder
@@ -175,7 +208,7 @@
 
                                         <v-col cols="12" md="4">
                                             <v-select
-                                                v-model="formModel.estado"
+                                                v-model="formModel.dsEstado"
                                                 label="Estado *"
                                                 :items="estados"
                                                 variant="outlined"
@@ -186,8 +219,8 @@
 
                                         <v-col cols="12" md="6">
                                             <v-text-field
-                                                class="mt-n5"
-                                                v-model="formModel.endereco"
+                                                class="mt-n2"
+                                                v-model="formModel.dsEndereco"
                                                 label="Endereço *"
                                                 variant="outlined"
                                                 persistent-placeholder
@@ -197,8 +230,8 @@
 
                                         <v-col cols="12" md="6">
                                             <v-text-field
-                                                class="mt-n5"
-                                                v-model="formModel.bairro"
+                                                class="mt-n2"
+                                                v-model="formModel.dsBairro"
                                                 label="Bairro *"
                                                 variant="outlined"
                                                 persistent-placeholder
@@ -208,8 +241,8 @@
 
                                         <v-col cols="12" md="6">
                                             <v-text-field
-                                                class="mt-n5"
-                                                v-model="formModel.numero"
+                                                class="mt-n2"
+                                                v-model="formModel.nrNumero"
                                                 label="Número *"
                                                 variant="outlined"
                                                 persistent-placeholder
@@ -219,73 +252,9 @@
 
                                         <v-col cols="12" md="6">
                                             <v-text-field
-                                                class="mt-n5"
-                                                v-model="formModel.complemento"
+                                                class="mt-n2"
+                                                v-model="formModel.dsComplemento"
                                                 label="Complemento *"
-                                                variant="outlined"
-                                                persistent-placeholder
-                                                clearable
-                                            />
-                                        </v-col>
-                                    </v-row>
-                                </template>
-                            </v-sheet>
-                        </v-tabs-window-item>
-
-                        <v-tabs-window-item value="three">
-                            <v-sheet class="pa-4">
-                                <template #default>
-                                    <v-row class="mt-3">
-                                        <v-col cols="12">
-                                            <v-text-field
-                                                v-model="formModel.nome"
-                                                label="Nome *"
-                                                variant="outlined"
-                                                persistent-placeholder
-                                                clearable
-                                            />
-                                        </v-col>
-
-                                        <v-col cols="12" md="6">
-                                            <v-text-field
-                                                class="mt-n5"
-                                                v-model="formModel.email"
-                                                label="E-mail *"
-                                                variant="outlined"
-                                                persistent-placeholder
-                                                clearable
-                                            />
-                                        </v-col>
-
-                                        <v-col cols="12" md="6">
-                                            <v-select
-                                                class="mt-n5"
-                                                v-model="formModel.genero"
-                                                label="Gênero *"
-                                                :items="['Masculino', 'Feminino']"
-                                                variant="outlined"
-                                                persistent-placeholder
-                                                clearable
-                                            />
-                                        </v-col>
-
-                                        <v-col cols="12" md="6">
-                                            <v-text-field
-                                                class="mt-n5"
-                                                v-model="formModel.cpfCnpj"
-                                                label="CPF/CNPJ *"
-                                                variant="outlined"
-                                                persistent-placeholder
-                                                clearable
-                                            />
-                                        </v-col>
-
-                                        <v-col cols="12" md="6">
-                                            <v-date-input
-                                                class="mt-n5"
-                                                v-model="formModel.nascimento"
-                                                label="Dt. Nascimento *"
-                                                prepend-icon=""
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
@@ -318,19 +287,22 @@
     import HeaderComponent from '@/components/HeaderComponent.vue'
 
     interface Pessoa {
-        id?: number
-        nome: string
-        email: string
-        cpfCnpj: string
-        genero: string
-        nascimento: string
-        cep: string
-        cidade: string
-        estado: string
-        endereco: string
-        bairro: string
-        numero: string
-        complemento: string
+        cdPessoa?: number
+        dsPessoa: string
+        nrCpf: string
+        dsEmail: string
+        nrTelefone: string
+        dtNascimento: string
+        dsGenero: string
+        dsObservacoes: string
+        xAtivo: boolean
+        nrCep: string
+        dsCidade: string
+        dsEstado: string
+        dsEndereco: string
+        dsBairro: string
+        nrNumero: string
+        dsComplemento: string
     }
 
     interface Breadcrumb {
@@ -361,6 +333,9 @@
                     { title: 'Pessoas', disabled: true, href: '/pessoas' },
                 ] as Breadcrumb[],
 
+                loadingCep: false,
+                cepError: '',
+
                 search: '',
 
                 tab: 'one',
@@ -370,29 +345,32 @@
                 pessoas: [] as Pessoa[],
 
                 formModel: {
-                    nome: '',
-                    email: '',
-                    cpfCnpj: '',
-                    genero: '',
-                    nascimento: '',
-                    cep: '',
-                    cidade: '',
-                    estado: '',
-                    endereco: '',
-                    bairro: '',
-                    numero: '',
-                    complemento: '',
+                    dsPessoa: '',
+                    nrCpf: '',
+                    dsEmail: '',
+                    nrTelefone: '',
+                    dtNascimento: '',
+                    dsGenero: '',
+                    dsObservacoes: '',
+                    xAtivo: true,
+                    nrCep: '',
+                    dsCidade: '',
+                    dsEstado: '',
+                    dsEndereco: '',
+                    dsBairro: '',
+                    nrNumero: '',
+                    dsComplemento: '',
                 } as Pessoa,
 
                 dialog: false,
 
                 headers: [
-                    { title: 'ID', key: 'id' },
-                    { title: 'Nome', key: 'nome', align: 'start' },
-                    { title: 'E-mail', key: 'email' },
-                    { title: 'CPF/CNPJ', key: 'cpfCnpj' },
-                    { title: 'Gênero', key: 'genero', align: 'end' },
-                    { title: 'Nascimento', key: 'nascimento', align: 'end' },
+                    { title: 'ID', key: 'cdPessoa' },
+                    { title: 'Nome', key: 'dsPessoa', align: 'start' },
+                    { title: 'E-mail', key: 'dsEmail' },
+                    { title: 'CPF', key: 'nrCpf' },
+                    { title: 'Gênero', key: 'dsGenero', align: 'end' },
+                    { title: 'Nascimento', key: 'dtNascimento', align: 'end' },
                     { title: 'Ações', key: 'actions', align: 'end', sortable: false },
                 ] as Cabecalhos[],
 
@@ -432,7 +410,7 @@
 
         computed: {
             editando (): boolean {
-                return !!this.formModel.id
+                return !!this.formModel.cdPessoa
             },
         },
 
@@ -443,18 +421,21 @@
         methods: {
             newRecord (): Pessoa {
                 return {
-                    nome: '',
-                    email: '',
-                    cpfCnpj: '',
-                    genero: '',
-                    nascimento: '',
-                    cep: '',
-                    cidade: '',
-                    estado: '',
-                    endereco: '',
-                    bairro: '',
-                    numero: '',
-                    complemento: '',
+                    dsPessoa: '',
+                    nrCpf: '',
+                    dsEmail: '',
+                    nrTelefone: '',
+                    dtNascimento: '',
+                    dsGenero: '',
+                    dsObservacoes: '',
+                    xAtivo: true,
+                    nrCep: '',
+                    dsCidade: '',
+                    dsEstado: '',
+                    dsEndereco: '',
+                    dsBairro: '',
+                    nrNumero: '',
+                    dsComplemento: '',
                 }
             },
 
@@ -464,7 +445,7 @@
             },
 
             edit (id: number): void {
-                const found = this.pessoas.find(pessoa => pessoa.id === id)
+                const found = this.pessoas.find(pessoa => pessoa.cdPessoa === id)
 
                 if (!found) {
                     return
@@ -475,7 +456,7 @@
             },
 
             delete (id: number): void {
-                const index = this.pessoas.findIndex(pessoa => pessoa.id === id)
+                const index = this.pessoas.findIndex(pessoa => pessoa.cdPessoa === id)
 
                 if (index !== -1) {
                     this.pessoas.splice(index, 1)
@@ -484,10 +465,10 @@
 
             save (): void {
                 if (this.editando) {
-                    const index = this.pessoas.findIndex(pessoa => pessoa.id === this.formModel.id)
+                    const index = this.pessoas.findIndex(pessoa => pessoa.cdPessoa === this.formModel.cdPessoa)
                     if (index !== -1) this.pessoas[index] = { ...this.formModel }
                 } else {
-                    this.formModel.id = this.pessoas.length + 1
+                    this.formModel.cdPessoa = this.pessoas.length + 1
                     this.pessoas.push({ ...this.formModel })
                 }
 
@@ -499,21 +480,81 @@
                 this.formModel = this.newRecord()
                 this.pessoas = [
                     {
-                        id: 1,
-                        nome: 'Oliveto Vinicius Di Domenico',
-                        email: 'olivetoovinicius@gmail.com',
-                        cpfCnpj: '115.407.919-80',
-                        genero: 'Masculino',
-                        nascimento: '05/03/2001',
-                        cep: '12345-678',
-                        cidade: 'São Paulo',
-                        estado: 'São Paulo (SP)',
-                        endereco: 'Rua Exemplo',
-                        bairro: 'Bairro Exemplo',
-                        numero: '123',
-                        complemento: 'Apto 456',
+                        cdPessoa: 1,
+                        dsPessoa: 'Oliveto Vinicius Di Domenico',
+                        nrCpf: '115.407.919-80',
+                        dsEmail: 'olivetoovinicius@gmail.com',
+                        nrTelefone: '(11) 99999-9999',
+                        dtNascimento: '05/03/2001',
+                        dsGenero: 'Masculino',
+                        dsObservacoes: '',
+                        xAtivo: true,
+                        nrCep: '12345-678',
+                        dsCidade: 'São Paulo',
+                        dsEstado: 'São Paulo (SP)',
+                        dsEndereco: 'Rua Exemplo',
+                        dsBairro: 'Bairro Exemplo',
+                        nrNumero: '123',
+                        dsComplemento: 'Apto 456',
                     },
                 ]
+            },
+
+            formatarCep (valor: string) {
+                let cepLimpo = valor.replace(/\D/g, '')
+
+                cepLimpo = cepLimpo.slice(0, 8)
+
+                if (cepLimpo.length > 5) {
+                    cepLimpo = cepLimpo.replace(/^(\d{5})(\d)/, '$1-$2')
+                }
+
+                this.formModel.nrCep = cepLimpo
+            },
+
+            buscarEstadoPorUf (uf: string) {
+                return this.estados.find(estado => estado.endsWith(`(${uf})`))
+            },
+
+            async buscarCep () {
+                const cepLimpo = this.formModel.nrCep.replace(/\D/g, '')
+
+                if (cepLimpo.length !== 8) {
+                    return
+                }
+
+                this.cepError = ''
+                this.loadingCep = true
+
+                try {
+                    const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`)
+                    const data = await response.json()
+
+                    if (data.erro) {
+                        this.cepError = 'CEP não encontrado'
+                        this.limparEndereco()
+                        return
+                    }
+
+                    this.formModel.dsEndereco = data.logradouro
+                    this.formModel.dsBairro = data.bairro
+                    this.formModel.dsCidade = data.localidade
+                    this.formModel.dsEstado = this.buscarEstadoPorUf(data.uf) || ''
+                    this.formModel.dsComplemento = data.complemento
+                } catch (error) {
+                    this.cepError = 'Erro ao consultar CEP'
+                    console.error(error)
+                } finally {
+                    this.loadingCep = false
+                }
+            },
+
+            limparEndereco () {
+                this.formModel.dsEndereco = ''
+                this.formModel.dsBairro = ''
+                this.formModel.dsCidade = ''
+                this.formModel.dsEstado = ''
+                this.formModel.dsComplemento = ''
             },
         },
     })
