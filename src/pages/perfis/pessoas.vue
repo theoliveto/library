@@ -40,7 +40,7 @@
                         <template #item.actions="{ item }">
                             <div class="d-flex ga-2 justify-end">
                                 <v-icon color="medium-emphasis" icon="mdi-pencil" size="small" @click="item.cdPessoa !== undefined && edit(item.cdPessoa)" />
-                                <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="item.cdPessoa !== undefined && delete(item.cdPessoa)" />
+                                <v-icon color="medium-emphasis" icon="mdi-delete" size="small" @click="item.cdPessoa !== undefined && remove(item.cdPessoa)" />
                             </div>
                         </template>
 
@@ -48,7 +48,7 @@
                             <v-btn
                                 prepend-icon="mdi-backup-restore"
                                 rounded="lg"
-                                text="Reset data"
+                                text="Recarregar"
                                 variant="text"
                                 border
                                 @click="reset"
@@ -488,6 +488,7 @@
 
         mounted () {
             this.reset()
+            document.title = 'Library | Pessoas'
         },
 
         methods: {
@@ -527,7 +528,7 @@
                 this.dialog = true
             },
 
-            delete (id: number): void {
+            remove (id: number): void {
                 const index = this.pessoas.findIndex(pessoa => pessoa.cdPessoa === id)
 
                 if (index !== -1) {
