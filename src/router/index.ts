@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 import Index from '@/pages/index.vue'
+import Login from '@/pages/login.vue'
 import Autores from '@/pages/acervo/autores.vue'
 import Categorias from '@/pages/acervo/categorias.vue'
 import Editoras from '@/pages/acervo/editoras.vue'
@@ -20,6 +21,7 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', component: Index },
+    { path: '/login', component: Login },
     { path: '/autores', component: Autores },
     { path: '/categorias', component: Categorias },
     { path: '/editoras', component: Editoras },

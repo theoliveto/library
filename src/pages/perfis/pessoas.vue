@@ -94,72 +94,96 @@
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
+                                                :rules="[required(), textOnly(), maxLength(150)]"
                                             >
-                                            <template #label>
-                                                Nome <span class="text-error">*</span>
-                                            </template>
+                                                <template #label>
+                                                    Nome <span class="text-error">*</span>
+                                                </template>
                                             </v-text-field>
                                         </v-col>
 
                                         <v-col cols="6">
                                             <v-text-field
                                                 v-model="formModel.nrCpf"
-                                                label="CPF *"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
-                                            />
+                                                :rules="[required(), cpf()]"
+                                                @update:model-value="value => formModel.nrCpf = cpfMask(value)"
+                                            >
+                                                <template #label>
+                                                    CPF <span class="text-error">*</span>
+                                                </template>
+                                            </v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="6">
                                             <v-text-field
-                                                class="mt-n5"
+                                                class="mt-n2"
                                                 v-model="formModel.dsEmail"
-                                                label="E-mail *"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
-                                            />
+                                                :rules="[required(), email(), maxLength(100)]"
+                                            >
+                                                <template #label>
+                                                    E-mail <span class="text-error">*</span>
+                                                </template>
+                                            </v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="6">
                                             <v-text-field
-                                                class="mt-n5"
+                                                class="mt-n2"
                                                 v-model="formModel.nrTelefone"
-                                                label="Telefone *"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
-                                            />
+                                                :rules="[required(), phone()]"
+                                                @update:model-value="value => formModel.nrTelefone = phoneFlexibleMask(value)"
+                                            >
+                                                <template #label>
+                                                    Telefone <span class="text-error">*</span>
+                                                </template>
+                                            </v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="6">
                                             <v-date-input
-                                                class="mt-n5"
+                                                class="mt-n2"
                                                 v-model="formModel.dtNascimento"
-                                                label="Dt. Nascimento *"
                                                 prepend-icon=""
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
-                                            />
+                                                :rules="[required()]"
+                                                @update:model-value="value => formModel.dtNascimento = dateMask(value)"
+                                            >
+                                                <template #label>
+                                                    Dt. Nascimento <span class="text-error">*</span>
+                                                </template>
+                                            </v-date-input>
                                         </v-col>
 
                                         <v-col cols="12" md="6">
                                             <v-select
-                                                class="mt-n5"
+                                                class="mt-n2"
                                                 v-model="formModel.dsGenero"
-                                                label="Gênero *"
                                                 :items="['Masculino', 'Feminino']"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
-                                            />
+                                                :rules="[required(), textOnly()]"
+                                            >
+                                                <template #label>
+                                                    Gênero <span class="text-error">*</span>
+                                                </template>
+                                            </v-select>
                                         </v-col>
 
                                         <v-col cols="12" md="12">
                                             <v-textarea
-                                                class="mt-n5"
+                                                class="mt-n2"
                                                 v-model="formModel.dsObservacoes"
                                                 label="Observações"
                                                 row-height="25"
@@ -168,6 +192,7 @@
                                                 persistent-placeholder
                                                 clearable
                                                 auto-grow
+                                                :rules="[maxLength(500)]"
                                             />
                                         </v-col>
                                     </v-row>
@@ -182,71 +207,90 @@
                                         <v-col cols="12" md="4">
                                             <v-text-field
                                                 v-model="formModel.nrCep"
-                                                label="CEP *"
-                                                v-mask="'#####-###'"
-                                                maxlength="9"
                                                 :loading="loadingCep"
                                                 :error-messages="cepError"
-                                                @update:model-value="formatarCep"
                                                 @blur="buscarCep"
                                                 inputmode="numeric"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
-                                            />
+                                                :rules="[required(), cep()]"
+                                                @update:model-value="value => formModel.nrCep = cepMask(value)"
+                                            >
+                                                <template #label>
+                                                    CEP <span class="text-error">*</span>
+                                                </template>
+                                            </v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="4">
                                             <v-text-field
                                                 v-model="formModel.dsCidade"
-                                                label="Cidade *"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
-                                            />
+                                                :rules="[required(), textOnly(), maxLength(200)]"
+                                            >
+                                                <template #label>
+                                                    Cidade <span class="text-error">*</span>
+                                                </template>
+                                            </v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="4">
                                             <v-select
                                                 v-model="formModel.dsEstado"
-                                                label="Estado *"
                                                 :items="estados"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
-                                            />
+                                                :rules="[required(), textOnly(), maxLength(100)]"
+                                            >
+                                                <template #label>
+                                                    Estado <span class="text-error">*</span>
+                                                </template>
+                                            </v-select>
                                         </v-col>
 
                                         <v-col cols="12" md="6">
                                             <v-text-field
                                                 class="mt-n2"
                                                 v-model="formModel.dsEndereco"
-                                                label="Endereço *"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
-                                            />
+                                                :rules="[required(), maxLength(200)]"
+                                            >
+                                                <template #label>
+                                                    Endereço <span class="text-error">*</span>
+                                                </template>
+                                            </v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="6">
                                             <v-text-field
                                                 class="mt-n2"
                                                 v-model="formModel.dsBairro"
-                                                label="Bairro *"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
-                                            />
+                                                :rules="[required(), maxLength(100)]"
+                                            >
+                                                <template #label>
+                                                    Bairro <span class="text-error">*</span>
+                                                </template>
+                                            </v-text-field>
                                         </v-col>
 
                                         <v-col cols="12" md="6">
                                             <v-text-field
                                                 class="mt-n2"
                                                 v-model="formModel.nrNumero"
-                                                label="Número *"
+                                                label="Número"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
+                                                :rules="[maxLength(10)]"
                                             />
                                         </v-col>
 
@@ -254,10 +298,11 @@
                                             <v-text-field
                                                 class="mt-n2"
                                                 v-model="formModel.dsComplemento"
-                                                label="Complemento *"
+                                                label="Complemento"
                                                 variant="outlined"
                                                 persistent-placeholder
                                                 clearable
+                                                :rules="[maxLength(100)]"
                                             />
                                         </v-col>
                                     </v-row>
@@ -283,6 +328,8 @@
 
 <script lang="ts">
     import { defineComponent } from 'vue'
+    import { cepMask, cpfMask, dateMask, numberMask, onlyNumbers, phoneFlexibleMask, phoneMask } from '@/utils/masks.ts'
+    import { cep, cpf, decimal, email, integer, maxLength, minLength, numeric, phone, required, textOnly } from '@/utils/validators.ts'
 
     import HeaderComponent from '@/components/HeaderComponent.vue'
 
@@ -325,6 +372,30 @@
             HeaderComponent,
         },
 
+        setup () {
+            return {
+                cepMask,
+                cpfMask,
+                dateMask,
+                numberMask,
+                onlyNumbers,
+                phoneFlexibleMask,
+                phoneMask,
+
+                cep,
+                cpf,
+                decimal,
+                email,
+                integer,
+                maxLength,
+                minLength,
+                numeric,
+                phone,
+                required,
+                textOnly,
+            }
+        },
+
         data () {
             return {
                 items: [
@@ -334,6 +405,7 @@
                 ] as Breadcrumb[],
 
                 loadingCep: false,
+
                 cepError: '',
 
                 search: '',
