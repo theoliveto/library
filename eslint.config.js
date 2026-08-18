@@ -14,6 +14,7 @@ export default vuetify(
       'perfectionist/sort-imports': 'off',
       'unicorn/no-this-outside-of-class': 'off',
       'unicorn/prefer-includes-over-repeated-comparisons': 'off',
+      'unicorn/explicit-length-check': 'off',
       '@stylistic/indent': 'off',
       'regexp/no-obscure-range': 'off',
     },
