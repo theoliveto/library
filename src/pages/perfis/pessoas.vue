@@ -193,7 +193,7 @@
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
-                                            :rules="[required(), textOnly(), maxLength(100)]"
+                                            :rules="[required(), maxLength(100)]"
                                         >
                                             <template #label>
                                                 Estado <span class="text-error">*</span>
@@ -266,6 +266,7 @@
 
 <script lang="ts">
     import { defineComponent } from 'vue'
+    import { api } from '@/services/api'
     import { cepMask, cpfMask, dateMask, numberMask, onlyNumbers, phoneFlexibleMask, phoneMask } from '@/utils/masks.ts'
     import { cep, cpf, decimal, email, integer, maxLength, minLength, numeric, phone, required, textOnly } from '@/utils/validators.ts'
 
@@ -485,16 +486,39 @@
                 }
             },
 
-            save (): void {
+            async save (): Promise<void> {
                 if (this.editando) {
-                    const index = this.pessoas.findIndex(pessoa => pessoa.cdPessoa === this.formModel.cdPessoa)
-                    if (index !== -1) this.pessoas[index] = { ...this.formModel }
-                } else {
-                    this.formModel.cdPessoa = this.pessoas.length + 1
-                    this.pessoas.push({ ...this.formModel })
+                    return
                 }
 
-                this.dialog = false
+                try {
+                    const request = {
+                        DS_PESSOA: this.formModel.dsPessoa,
+                        NR_CPF: this.formModel.nrCpf,
+                        DS_EMAIL: this.formModel.dsEmail,
+                        NR_TELEFONE: this.formModel.nrTelefone,
+                        DT_NASCIMENTO: this.formModel.dtNascimento,
+                        DS_GENERO: this.formModel.dsGenero,
+                        DS_OBSERVACOES: this.formModel.dsObservacoes || null,
+                        NR_CEP: this.formModel.nrCep,
+                        DS_ENDERECO: this.formModel.dsEndereco,
+                        DS_CIDADE: this.formModel.dsCidade,
+                        DS_ESTADO: this.formModel.dsEstado,
+                        DS_BAIRRO: this.formModel.dsBairro,
+                        NR_NUMERO: this.formModel.nrNumero || null,
+                        DS_COMPLEMENTO: this.formModel.dsComplemento || null,
+                        X_ATIVO: this.formModel.xAtivo,
+                    }
+
+                    const response = await api.post('/Pessoas', request)
+
+                    this.pessoas.push(response.data)
+
+                    this.dialog = false
+                    this.formModel = this.newRecord()
+                } catch (error) {
+                    console.error('Erro ao cadastrar pessoa:', error)
+                }
             },
 
             reset (): void {
