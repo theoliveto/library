@@ -1,71 +1,11 @@
 <template>
-    <v-navigation-drawer v-model="drawer" color="blue-grey-darken-4" width="250">
-        <v-list density="compact">
-            <v-list-item to="/" prepend-icon="mdi-home-variant-outline" title="Home" />
-
-            <v-list-group value="Perfis">
-                <template #activator="{ props }">
-                    <v-list-item v-bind="props" prepend-icon="mdi-account-circle" title="Perfis" />
-                </template>
-
-                <div class="setback">
-                    <v-list-item to="/pessoas" title="Pessoas" prepend-icon="mdi-account-group-outline" />
-                    <v-list-item to="/usuarios" title="Usuários" prepend-icon="mdi-account-edit-outline" />
-                </div>
-            </v-list-group>
-
-            <v-list-group value="Acervo">
-                <template #activator="{ props }">
-                    <v-list-item v-bind="props" prepend-icon="mdi-bookmark-box-multiple" title="Acervo" />
-                </template>
-
-                <div class="setback">
-                    <v-list-item to="/livros" title="Livros" prepend-icon="mdi-book" />
-                    <v-list-item to="/autores" title="Autores" prepend-icon="mdi-fountain-pen-tip" />
-                    <v-list-item to="/categorias" title="Categorias" prepend-icon="mdi-content-duplicate" />
-                    <v-list-item to="/editoras" title="Editoras" prepend-icon="mdi-newspaper-variant-outline" />
-                    <v-list-item to="/exemplares" title="Exemplares" prepend-icon="mdi-book-multiple-outline" />
-                </div>
-            </v-list-group>
-
-            <v-list-group value="Circulação">
-                <template #activator="{ props }">
-                    <v-list-item v-bind="props" prepend-icon="mdi-sync" title="Circulação" />
-                </template>
-
-                <div class="setback">
-                    <v-list-item to="/emprestimos" title="Empréstimos" prepend-icon="mdi-arrow-u-right-top-bold" />
-                    <v-list-item to="/devolucoes" title="Devoluções" prepend-icon="mdi-arrow-u-left-top-bold" />
-                    <v-list-item to="/reservas" title="Reservas" prepend-icon="mdi-bookmark-check-outline" />
-                </div>
-            </v-list-group>
-
-            <v-list-group value="Controle">
-                <template #activator="{ props }">
-                    <v-list-item v-bind="props" prepend-icon="mdi-camera-control" title="Controle" />
-                </template>
-
-                <div class="setback">
-                    <v-list-item to="/atrasados" title="Atrasados" prepend-icon="mdi-clock-alert-outline" />
-                    <v-list-item to="/multas" title="Multas" prepend-icon="mdi-cash-minus" />
-                    <v-list-item to="/historico" title="Histórico" prepend-icon="mdi-history" />
-                </div>
-            </v-list-group>
-
-            <v-list-item to="/relatorios" prepend-icon="mdi-chart-box-outline" title="Relatórios" />
-        </v-list>
-    </v-navigation-drawer>
-
-    <v-app-bar>
-        <template #prepend>
-            <v-app-bar-nav-icon @click="drawer = !drawer" />
-        </template>
-
+    <v-navigation-drawer v-model="drawer" color="blue-grey-darken-4" width="260">
+        <!-- Seleção de Empresas -->
         <v-menu v-model="menuAberto" location="bottom start" :offset="8">
             <template #activator="{ props }">
                 <v-btn v-bind="props" variant="text" class="empresa-ativador" height="58" rounded="0">
-                    <v-avatar size="32" color="blue-lighten-5" class="mr-2">
-                        <v-icon color="blue" size="18" icon="mdi-office-building-outline" />
+                    <v-avatar size="32" color="primary" class="mr-2">
+                        <v-icon color="blue-lighten-5" size="18" icon="mdi-office-building-outline" />
                     </v-avatar>
 
                     <div class="empresa-atual">
@@ -101,6 +41,101 @@
             </v-card>
         </v-menu>
 
+        <!-- Pesquisa de Menus -->
+        <div class="pesquisa-sidebar">
+            <v-text-field
+                v-model="pesquisaMenu"
+                placeholder="Pesquisar tela..."
+                prepend-inner-icon="mdi-magnify"
+                variant="outlined"
+                density="compact"
+                clearable
+                persistent-placeholder
+                hide-details
+            />
+        </div>
+
+        <!-- Menus -->
+        <v-list density="compact" class="menu-principal">
+            <template v-for="menu in menusFiltrados" :key="menu.title">
+
+                <v-list-item
+                    v-if="!menu.children"
+                    :to="menu.to"
+                    :prepend-icon="menu.icon"
+                    :title="menu.title"
+                />
+
+                <v-list-group v-else :value="menu.title">
+                    <template #activator="{ props }">
+                        <v-list-item
+                            v-bind="props"
+                            :prepend-icon="menu.icon"
+                            :title="menu.title"
+                        />
+                    </template>
+
+                    <div class="setback">
+                        <v-list-item
+                            v-for="item in menu.children"
+                            :key="item.title"
+                            :to="item.to"
+                            :prepend-icon="item.icon"
+                            :title="item.title"
+                        />
+                    </div>
+                </v-list-group>
+
+            </template>
+        </v-list>
+
+        <v-spacer />
+
+        <!-- Menu de Usuário -->
+        <v-menu location="top end" :offset="8">
+            <template #activator="{ props }">
+                <v-list-item v-bind="props" class="usuario-sidebar">
+                    <template #prepend>
+                        <v-avatar color="primary" size="38">
+                            <span class="text-white">OD</span>
+                        </v-avatar>
+                    </template>
+
+                    <v-list-item-title>{{ user }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ profile }}</v-list-item-subtitle>
+
+                    <template #append>
+                        <v-icon size="18" icon="mdi-chevron-up" />
+                    </template>
+                </v-list-item>
+            </template>
+
+            <v-card min-width="200" elevation="4" color="blue-grey-darken-4">
+                <v-list density="compact" bg-color="blue-grey-darken-4">
+                    <v-list-item to="/perfil" prepend-icon="mdi-account-outline" title="Meu perfil" />
+                    <v-list-item to="/configuracoes" prepend-icon="mdi-cog-outline" title="Configurações" />
+
+                    <v-divider class="my-1" />
+
+                    <v-list-item to="/login" prepend-icon="mdi-logout" title="Sair" />
+                </v-list>
+            </v-card>
+        </v-menu>
+    </v-navigation-drawer>
+
+    <v-app-bar>
+        <template #prepend>
+            <v-app-bar-nav-icon @click="drawer = !drawer" />
+        </template>
+
+        <v-app-bar-title class="title-bar">
+            <v-breadcrumbs :items="$route.meta.breadcrumbs">
+                <template #divider>
+                    <v-icon icon="mdi-chevron-right" />
+                </template>
+            </v-breadcrumbs>
+        </v-app-bar-title>
+
         <template #append>
             <v-menu>
                 <template #activator="{ props }">
@@ -120,37 +155,41 @@
                     <v-list-item title="Ver todas as notificações" class="text-center" />
                 </v-list>
             </v-menu>
-
-            <v-menu>
-                <template #activator="{ props }">
-                    <v-btn v-bind="props" icon class="mr-2">
-                        <v-avatar color="primary" size="40">
-                            <span class="text-white">GC</span>
-                        </v-avatar>
-                    </v-btn>
-                </template>
-
-                <v-list min-width="200">
-                    <v-list-item to="/perfil" prepend-icon="mdi-account" title="Meu perfil" />
-                    <v-list-item to="/configuracoes" prepend-icon="mdi-cog" title="Configurações" />
-                    <v-divider />
-                    <v-list-item to="/login" prepend-icon="mdi-logout" title="Sair" />
-                </v-list>
-            </v-menu>
         </template>
     </v-app-bar>
 </template>
 
 <script lang="ts">
-    import { defineComponent } from 'vue'
+    import { defineComponent, type PropType } from 'vue'
+
+    export interface TitleHeader {
+        title: string
+        disabled: boolean
+        href?: string
+    }
 
     export default defineComponent({
         name: 'HeaderComponent',
+
+        props: {
+            breadcrumbs: {
+                type: Array as PropType<TitleHeader[]>,
+                default: () => [],
+            },
+        },
+
         data () {
             return {
                 drawer: true,
+
                 user: 'Oliveto',
+
+                profile: 'Administrador',
+
+                pesquisaMenu: '',
+
                 menuAberto: false,
+
                 empresas: [
                     {
                         nome: 'C.E. Monte das Oliveiras',
@@ -163,23 +202,184 @@
                         sigla: 'BY',
                     },
                 ],
+
                 empresaSelecionada: ({
                     nome: 'C.E. Monte das Oliveiras',
                     cnpj: '12.345.678/0001-90',
                     sigla: 'MO',
                 }),
+
+                menus: [
+                    {
+                        title: 'Home',
+                        icon: 'mdi-home-variant-outline',
+                        to: '/',
+                    },
+
+                    {
+                        title: 'Perfis',
+                        icon: 'mdi-account-circle',
+                        children: [
+                            {
+                                title: 'Pessoas',
+                                icon: 'mdi-account-group-outline',
+                                to: '/pessoas',
+                            },
+                            {
+                                title: 'Usuários',
+                                icon: 'mdi-account-edit-outline',
+                                to: '/usuarios',
+                            },
+                        ],
+                    },
+
+                    {
+                        title: 'Acervo',
+                        icon: 'mdi-bookmark-box-multiple',
+                        children: [
+                            {
+                                title: 'Livros',
+                                icon: 'mdi-book',
+                                to: '/livros',
+                            },
+                            {
+                                title: 'Autores',
+                                icon: 'mdi-fountain-pen-tip',
+                                to: '/autores',
+                            },
+                            {
+                                title: 'Categorias',
+                                icon: 'mdi-content-duplicate',
+                                to: '/categorias',
+                            },
+                            {
+                                title: 'Editoras',
+                                icon: 'mdi-newspaper-variant-outline',
+                                to: '/editoras',
+                            },
+                            {
+                                title: 'Exemplares',
+                                icon: 'mdi-book-multiple-outline',
+                                to: '/exemplares',
+                            },
+                        ],
+                    },
+
+                    {
+                        title: 'Circulação',
+                        icon: 'mdi-sync',
+                        children: [
+                            {
+                                title: 'Empréstimos',
+                                icon: 'mdi-arrow-u-right-top-bold',
+                                to: '/emprestimos',
+                            },
+                            {
+                                title: 'Devoluções',
+                                icon: 'mdi-arrow-u-left-top-bold',
+                                to: '/devolucoes',
+                            },
+                            {
+                                title: 'Reservas',
+                                icon: 'mdi-bookmark-check-outline',
+                                to: '/reservas',
+                            },
+                        ],
+                    },
+
+                    {
+                        title: 'Controle',
+                        icon: 'mdi-camera-control',
+                        children: [
+                            {
+                                title: 'Atrasados',
+                                icon: 'mdi-clock-alert-outline',
+                                to: '/atrasados',
+                            },
+                            {
+                                title: 'Multas',
+                                icon: 'mdi-cash-minus',
+                                to: '/multas',
+                            },
+                            {
+                                title: 'Histórico',
+                                icon: 'mdi-history',
+                                to: '/historico',
+                            },
+                        ],
+                    },
+
+                    {
+                        title: 'Relatórios',
+                        icon: 'mdi-chart-box-outline',
+                        to: '/relatorios',
+                    },
+                ],
             }
         },
+
         methods: {
             selecionarEmpresa (empresa: any) {
                 this.empresaSelecionada = empresa
                 this.menuAberto = false
             },
         },
+
+        computed: {
+            menusFiltrados () {
+                const pesquisa = this.pesquisaMenu.trim().toLowerCase()
+
+                if (!pesquisa) {
+                    return this.menus
+                }
+
+                return this.menus
+                    .map((menu: any) => {
+                        if (menu.children) {
+                            const menuEncontrado = menu.title.toLowerCase().includes(pesquisa)
+
+                            const filhosEncontrados = menu.children.filter((item: any) =>
+                                item.title.toLowerCase().includes(pesquisa),
+                            )
+
+                            if (menuEncontrado) {
+                                return menu
+                            }
+
+                            if (filhosEncontrados.length) {
+                                return {
+                                    ...menu,
+                                    children: filhosEncontrados,
+                                }
+                            }
+
+                            return null
+                        }
+
+                        return menu.title.toLowerCase().includes(pesquisa) ? menu : null
+                    })
+                    .filter(Boolean)
+            },
+        },
     })
 </script>
 
 <style scoped>
+    .title-bar {
+        font-size: 16px;
+        font-weight: 500;
+        letter-spacing: -0.8px;
+    }
+
+    :deep(.v-navigation-drawer__content) {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .usuario-sidebar {
+        margin-bottom: 16px;
+    }
+
     .setback {
         margin-left: -30px;
     }
@@ -199,12 +399,12 @@
     .empresa-nome {
         font-size: 14px;
         font-weight: 500;
-        color: #172033;
+        color: #c3c5c9;
     }
 
     .empresa-cnpj {
         font-size: 12px;
-        color: #718096;
+        color: #c3c5c9;
         margin-top: 3px;
     }
 
@@ -273,5 +473,22 @@
         border-radius: 50%;
         background-color: #2563eb;
         margin-left: 8px;
+    }
+
+    .pesquisa-sidebar {
+        padding: 8px 10px 10px;
+    }
+
+    .pesquisa-sidebar :deep(.v-field) {
+        background-color: rgba(255, 255, 255, 0.08);
+        color: white;
+    }
+
+    .pesquisa-sidebar :deep(.v-field__input) {
+        color: white;
+    }
+
+    .pesquisa-sidebar :deep(input::placeholder) {
+        color: rgba(255, 255, 255, 0.5);
     }
 </style>

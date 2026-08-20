@@ -3,12 +3,8 @@
         <HeaderComponent />
 
         <v-main>
-            <v-container class="mt-5">
-                <v-breadcrumbs :items="items">
-                    <template #divider>
-                        <v-icon icon="mdi-chevron-right" />
-                    </template>
-                </v-breadcrumbs>
+            <v-container fluid class="mt-5">
+                Livros
             </v-container>
         </v-main>
 
@@ -24,15 +20,11 @@
 
     export default defineComponent ({
         name: 'LivrosPage',
-        data () {
-            return {
-                items: [
-                    { title: 'Home', disabled: false, href: '/' },
-                    { title: 'Acervo', disabled: true },
-                    { title: 'Livros', disabled: true, href: '/livros' },
-                ],
-            }
+
+        mounted () {
+            document.title = this.$route.meta.title as string
         },
+
         components: {
             HeaderComponent,
             FooterComponent,

@@ -3,13 +3,7 @@
         <HeaderComponent />
 
         <v-main>
-            <v-container fluid class="mt-n5">
-                <v-breadcrumbs :items="items">
-                    <template #divider>
-                        <v-icon icon="mdi-chevron-right" />
-                    </template>
-                </v-breadcrumbs>
-
+            <v-container fluid class="mt-10">
                 <v-sheet border rounded class="mt-n3">
                     <v-data-table :headers="headers" :items="usuarios" :search="search">
                         <template #top>
@@ -211,12 +205,6 @@
         xAdministrador: boolean
     }
 
-    interface Breadcrumb {
-        title: string
-        disabled: boolean
-        href?: string
-    }
-
     interface Cabecalhos {
         title: string
         key: string
@@ -257,12 +245,6 @@
 
         data () {
             return {
-                items: [
-                    { title: 'Home', disabled: false, href: '/' },
-                    { title: 'Perfis', disabled: true },
-                    { title: 'Usuários', disabled: true, href: '/usuarios' },
-                ] as Breadcrumb[],
-
                 search: '',
 
                 tab: 'one',
@@ -305,7 +287,7 @@
 
         mounted () {
             this.reset()
-            document.title = 'Library | Usuários'
+            document.title = this.$route.meta.title as string
         },
 
         methods: {

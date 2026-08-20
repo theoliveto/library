@@ -9,6 +9,10 @@
 <script lang="ts" setup></script>
 
 <style>
+  html {
+    overflow: hidden;
+  }
+
   #app {
     font-family: 'Geist Variable', sans-serif;
     letter-spacing: -1px;

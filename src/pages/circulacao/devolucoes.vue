@@ -3,12 +3,8 @@
         <HeaderComponent />
 
         <v-main>
-            <v-container class="mt-5">
-                <v-breadcrumbs :items="items">
-                    <template #divider>
-                        <v-icon icon="mdi-chevron-right" />
-                    </template>
-                </v-breadcrumbs>
+            <v-container fluid class="mt-5">
+                Devoluções
             </v-container>
         </v-main>
 
@@ -24,15 +20,11 @@
 
     export default defineComponent ({
         name: 'DevolucoesPage',
-        data () {
-            return {
-                items: [
-                    { title: 'Home', disabled: false, href: '/' },
-                    { title: 'Circulação', disabled: true },
-                    { title: 'Devoluções', disabled: true, href: '/devolucoes' },
-                ],
-            }
+
+        mounted () {
+            document.title = this.$route.meta.title as string
         },
+
         components: {
             HeaderComponent,
             FooterComponent,

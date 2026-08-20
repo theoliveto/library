@@ -3,13 +3,7 @@
         <HeaderComponent />
 
         <v-main>
-            <v-container fluid class="mt-n5">
-                <v-breadcrumbs :items="items">
-                    <template #divider>
-                        <v-icon icon="mdi-chevron-right" />
-                    </template>
-                </v-breadcrumbs>
-
+            <v-container fluid class="mt-5">
                 <TableComponent
                     title="Pessoas"
                     icon="mdi-account-group-outline"
@@ -293,12 +287,6 @@
         dsComplemento: string
     }
 
-    interface Breadcrumb {
-        title: string
-        disabled: boolean
-        href?: string
-    }
-
     interface Cabecalhos {
         title: string
         key: string
@@ -341,12 +329,6 @@
 
         data () {
             return {
-                items: [
-                    { title: 'Home', disabled: false, href: '/' },
-                    { title: 'Perfis', disabled: true },
-                    { title: 'Pessoas', disabled: true, href: '/pessoas' },
-                ] as Breadcrumb[],
-
                 loadingCep: false,
 
                 cepError: '',

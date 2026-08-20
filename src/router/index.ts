@@ -17,25 +17,204 @@ import Pessoas from '@/pages/perfis/pessoas.vue'
 import Usuarios from '@/pages/perfis/usuarios.vue'
 import Relatorios from '@/pages/relatorios.vue'
 
+export interface TitleHeader {
+  title: string
+  disabled: boolean
+  href?: string
+}
+
+declare module 'vue-router' {
+  interface RouteMeta {
+      breadcrumbs?: TitleHeader[]
+  }
+}
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', component: Index },
-    { path: '/login', component: Login },
-    { path: '/autores', component: Autores },
-    { path: '/categorias', component: Categorias },
-    { path: '/editoras', component: Editoras },
-    { path: '/exemplares', component: Exemplares },
-    { path: '/livros', component: Livros },
-    { path: '/devolucoes', component: Devolucoes },
-    { path: '/emprestimos', component: Emprestimos },
-    { path: '/reservas', component: Reservas },
-    { path: '/atrasados', component: Atrasados },
-    { path: '/historico', component: Historico },
-    { path: '/multas', component: Multas },
-    { path: '/pessoas', component: Pessoas },
-    { path: '/usuarios', component: Usuarios },
-    { path: '/relatorios', component: Relatorios },
+    {
+      path: '/',
+      component: Index,
+      meta: {
+        title: 'Library | Dashboard',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Dashboard', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/login',
+      component: Login,
+      meta: { title: 'Library | Login' },
+    },
+    {
+      path: '/autores',
+      component: Autores,
+      meta: {
+        title: 'Library | Autores',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Acervo', disabled: true },
+          { title: 'Autores', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/categorias',
+      component: Categorias,
+      meta: {
+        title: 'Library | Categorias',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Acervo', disabled: true },
+          { title: 'Categorias', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/editoras',
+      component: Editoras,
+      meta: {
+        title: 'Library | Editoras',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Acervo', disabled: true },
+          { title: 'Editoras', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/exemplares',
+      component: Exemplares,
+      meta: {
+        title: 'Library | Exemplares',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Acervo', disabled: true },
+          { title: 'Exemplares', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/livros',
+      component: Livros,
+      meta: {
+        title: 'Library | Livros',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Acervo', disabled: true },
+          { title: 'Livros', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/devolucoes',
+      component: Devolucoes,
+      meta: {
+        title: 'Library | Devoluções',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Circulação', disabled: true },
+          { title: 'Devoluções', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/emprestimos',
+      component: Emprestimos,
+      meta: {
+        title: 'Library | Empréstimos',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Circulação', disabled: true },
+          { title: 'Empréstimos', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/reservas',
+      component: Reservas,
+      meta: {
+        title: 'Library | Reservas',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Circulação', disabled: true },
+          { title: 'Reservas', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/atrasados',
+      component: Atrasados,
+      meta: {
+        title: 'Library | Atrasados',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Controle', disabled: true },
+          { title: 'Atrasados', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/historico',
+      component: Historico,
+      meta: {
+        title: 'Library | Histórico',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Controle', disabled: true },
+          { title: 'Atrasados', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/multas',
+      component: Multas,
+      meta: {
+        title: 'Library | Multas',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Controle', disabled: true },
+          { title: 'Multas', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/pessoas',
+      component: Pessoas,
+      meta: {
+        title: 'Library | Pessoas',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Perfis', disabled: true },
+          { title: 'Pessoas', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/usuarios',
+      component: Usuarios,
+      meta: {
+        title: 'Library | Usuários',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Perfis', disabled: true },
+          { title: 'Usuários', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/relatorios',
+      component: Relatorios,
+      meta: {
+        title: 'Library | Relatórios',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Relatórios', disabled: true },
+        ],
+      },
+    },
   ],
 })
 
