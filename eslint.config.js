@@ -15,7 +15,9 @@ export default vuetify(
       'unicorn/no-this-outside-of-class': 'off',
       'unicorn/prefer-includes-over-repeated-comparisons': 'off',
       'unicorn/explicit-length-check': 'off',
+      'unicorn/no-array-for-each': 'off',
       '@stylistic/indent': 'off',
+      '@stylistic/space-before-function-paren': 'off'
       'regexp/no-obscure-range': 'off',
     },
   },

@@ -26,7 +26,7 @@
                 :subtitle="`${editando ? 'Atualizar' : 'Cadastrar'} registro`"
                 @save="save"
             >
-                <v-tabs-window v-model="currentTab">
+                <v-tabs-window v-model="currentTab" class="dialog-tabs-window">
                     <v-tabs-window-item value="one">
                         <v-sheet class="pa-4">
                             <template #default>
@@ -134,7 +134,6 @@
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
-                                            auto-grow
                                             :rules="[maxLength(500)]"
                                         />
                                     </v-col>
@@ -255,6 +254,8 @@
                 </v-tabs-window>
             </DialogComponent>
         </v-main>
+
+        <FooterComponent />
     </v-app>
 </template>
 
@@ -265,7 +266,8 @@
     import { cep, cpf, decimal, email, integer, maxLength, minLength, numeric, phone, required, textOnly } from '@/utils/validators.ts'
 
     import HeaderComponent from '@/components/HeaderComponent.vue'
-    import TableComponent from '@/components/TableComponent.vue'
+    import FooterComponent from '@/components/FooterComponent.vue'
+    import TableComponent, { type TableHeader } from '@/components/TableComponent.vue'
     import DialogComponent, { type TabItem } from '@/components/DialogComponent.vue'
 
     interface Pessoa {
@@ -287,18 +289,12 @@
         dsComplemento: string
     }
 
-    interface Cabecalhos {
-        title: string
-        key: string
-        align?: 'start' | 'end' | 'center'
-        sortable?: boolean
-    }
-
     export default defineComponent({
         name: 'PessoasPage',
 
         components: {
             HeaderComponent,
+            FooterComponent,
             TableComponent,
             DialogComponent,
         },
@@ -369,7 +365,7 @@
                     { title: 'Gênero', key: 'dsGenero', align: 'end' },
                     { title: 'Nascimento', key: 'dtNascimento', align: 'end' },
                     { title: 'Ações', key: 'actions', align: 'end', sortable: false },
-                ] as Cabecalhos[],
+                ] as TableHeader[],
 
                 estados: [
                     'Acre (AC)',
@@ -420,7 +416,7 @@
 
         mounted () {
             this.reset()
-            document.title = 'Library | Pessoas'
+            document.title = this.$route.meta.title as string
         },
 
         methods: {
@@ -591,5 +587,9 @@
 <style scoped>
     .font-spacing {
         letter-spacing: -1px;
+    }
+
+    .dialog-tabs-window {
+        min-height: 400px;
     }
 </style>

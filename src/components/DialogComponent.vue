@@ -25,10 +25,8 @@
 
             <v-divider />
 
-            <v-card-text class="pa-4">
-                <v-row class="mt-1">
-                    <slot />
-                </v-row>
+            <v-card-text class="pa-0 dialog-content">
+                <slot />
             </v-card-text>
 
             <v-divider />
@@ -82,3 +80,9 @@
         },
     })
 </script>
+
+<style scoped>
+    .dialog-content {
+        min-height: 400px;
+    }
+</style>

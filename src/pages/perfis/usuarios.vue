@@ -3,7 +3,7 @@
         <HeaderComponent />
 
         <v-main>
-            <v-container fluid class="mt-10">
+            <v-container fluid class="mt-5">
                 <v-sheet border rounded class="mt-n3">
                     <v-data-table :headers="headers" :items="usuarios" :search="search">
                         <template #top>
@@ -184,6 +184,8 @@
                 </v-card>
             </v-dialog>
         </v-main>
+
+        <FooterComponent />
     </v-app>
 </template>
 
@@ -193,6 +195,7 @@
     import { cep, cpf, decimal, email, integer, maxLength, minLength, numeric, phone, required, textOnly } from '@/utils/validators.ts'
 
     import HeaderComponent from '@/components/HeaderComponent.vue'
+    import FooterComponent from '@/components/FooterComponent.vue'
 
     interface Usuario {
         cdUsuario?: number
@@ -217,6 +220,7 @@
 
         components: {
             HeaderComponent,
+            FooterComponent,
         },
 
         setup () {

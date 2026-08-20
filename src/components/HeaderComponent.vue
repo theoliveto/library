@@ -17,7 +17,7 @@
                 </v-btn>
             </template>
 
-            <v-card width="288" rounded="lg" elevation="3" class="empresa-menu">
+            <v-card width="288" elevation="3" class="empresa-menu">
                 <div class="titulo-empresas">INSTITUIÇÕES</div>
 
                 <div
@@ -117,9 +117,19 @@
 
                     <v-divider class="my-1" />
 
-                    <v-list-item to="/login" prepend-icon="mdi-logout" title="Sair" />
+                    <v-list-item prepend-icon="mdi-logout" title="Sair" @click="confirmarSaida" />
                 </v-list>
             </v-card>
+
+            <message-component
+                v-model="showConfirmacaoSaida"
+                title="Sair"
+                message="Deseja realmente sair do sistema?"
+                confirm-text="Sim, sair"
+                cancel-text="Cancelar"
+                confirm-color="error"
+                @confirm="sair"
+            />
         </v-menu>
     </v-navigation-drawer>
 
@@ -161,6 +171,7 @@
 
 <script lang="ts">
     import { defineComponent, type PropType } from 'vue'
+    import MessageComponent from './MessageComponent.vue';
 
     export interface TitleHeader {
         title: string
@@ -170,6 +181,10 @@
 
     export default defineComponent({
         name: 'HeaderComponent',
+
+        components: {
+            MessageComponent
+        },
 
         props: {
             breadcrumbs: {
@@ -315,6 +330,8 @@
                         to: '/relatorios',
                     },
                 ],
+
+                showConfirmacaoSaida: false
             }
         },
 
@@ -323,6 +340,15 @@
                 this.empresaSelecionada = empresa
                 this.menuAberto = false
             },
+
+            confirmarSaida() {
+                this.showConfirmacaoSaida = true
+            },
+
+            sair() {
+                localStorage.removeItem('token')
+                this.$router.push('/login')
+            }
         },
 
         computed: {

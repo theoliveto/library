@@ -16,6 +16,8 @@ import Multas from '@/pages/controle/multas.vue'
 import Pessoas from '@/pages/perfis/pessoas.vue'
 import Usuarios from '@/pages/perfis/usuarios.vue'
 import Relatorios from '@/pages/relatorios.vue'
+import Configuracoes from '@/pages/configuracoes.vue'
+import Perfil from '@/pages/perfil.vue'
 
 export interface TitleHeader {
   title: string
@@ -212,6 +214,28 @@ const router = createRouter({
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
           { title: 'Relatórios', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/perfil',
+      component: Perfil,
+      meta: {
+        title: 'Library | Perfil',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Perfil', disabled: true },
+        ],
+      },
+    },
+    {
+      path: '/configuracoes',
+      component: Configuracoes,
+      meta: {
+        title: 'Library | Configurações',
+        breadcrumbs: [
+          { title: 'Home', disabled: false, href: '/' },
+          { title: 'Configurações', disabled: true },
         ],
       },
     },
