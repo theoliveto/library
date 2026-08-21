@@ -9,11 +9,24 @@
                     icon="mdi-account-group-outline"
                     item-key="cdPessoa"
                     :headers="headers"
-                    :items="pessoas"
-                    @add="add"
-                    @edit="edit"
-                    @delete="remove"
-                    @reset="reset"
+                    :items="pessoasFormatadas"
+                    @add="adicionar"
+                    @edit="editar"
+                    @delete="deletar"
+                    @reset="reiniciar"
+                />
+
+                <MessageComponent 
+                    v-model="messageDialog"
+                    title="Excluir pessoa"
+                    icon-title="mdi-help-box-multiple-outline"
+                    message="Tem certeza que deseja excluir este registro? Essa ação não poderá ser desfeita."
+                    confirm-text="Excluir"
+                    confirm-color="error"
+                    cancel-text="Cancelar"
+                    cancel-color="grey"
+                    @confirm="confirmarExclusao"
+                    @cancel="cancelarExclusao"
                 />
             </v-container>
 
@@ -24,10 +37,10 @@
                 :tabs="tabsConfig"
                 :title="`${editando ? 'Editando' : 'Inserindo'} uma pessoa`"
                 :subtitle="`${editando ? 'Atualizar' : 'Cadastrar'} registro`"
-                @save="save"
+                @save="salvar"
             >
                 <v-tabs-window v-model="currentTab" class="dialog-tabs-window">
-                    <v-tabs-window-item value="one">
+                    <v-tabs-window-item value="dados-pessoais">
                         <v-sheet class="pa-4">
                             <template #default>
                                 <v-row class="mt-3">
@@ -97,10 +110,11 @@
                                             v-model="formModel.dtNascimento"
                                             prepend-icon=""
                                             variant="outlined"
-                                            persistent-placeholder
                                             clearable
+                                            locale="pt-BR"
+                                            display-format="dd/MM/yyyy"
+                                            persistent-placeholder
                                             :rules="[required()]"
-                                            @update:model-value="value => formModel.dtNascimento = dateMask(value)"
                                         >
                                             <template #label>
                                                 Dt. Nascimento <span class="text-error">*</span>
@@ -142,7 +156,7 @@
                         </v-sheet>
                     </v-tabs-window-item>
 
-                    <v-tabs-window-item value="two">
+                    <v-tabs-window-item value="endereco">
                         <v-sheet class="pa-4">
                             <template #default>
                                 <v-row class="mt-3">
@@ -261,7 +275,8 @@
 
 <script lang="ts">
     import { defineComponent } from 'vue'
-    import { api } from '@/services/api'
+    import { pessoaService, type PessoaDto, type PessoaCreateDto } from '../../services/Pessoas/service.ts'
+    import { paraIso, paraDate, paraDataBR } from '@/utils/dateConverter'
     import { cepMask, cpfMask, dateMask, numberMask, onlyNumbers, phoneFlexibleMask, phoneMask } from '@/utils/masks.ts'
     import { cep, cpf, decimal, email, integer, maxLength, minLength, numeric, phone, required, textOnly } from '@/utils/validators.ts'
 
@@ -269,25 +284,9 @@
     import FooterComponent from '@/components/FooterComponent.vue'
     import TableComponent, { type TableHeader } from '@/components/TableComponent.vue'
     import DialogComponent, { type TabItem } from '@/components/DialogComponent.vue'
+    import MessageComponent from '@/components/MessageComponent.vue'
 
-    interface Pessoa {
-        cdPessoa?: number
-        dsPessoa: string
-        nrCpf: string
-        dsEmail: string
-        nrTelefone: string
-        dtNascimento: string
-        dsGenero: string
-        dsObservacoes: string
-        xAtivo: boolean
-        nrCep: string
-        dsCidade: string
-        dsEstado: string
-        dsEndereco: string
-        dsBairro: string
-        nrNumero: string
-        dsComplemento: string
-    }
+    type PessoaFormModel = Omit<PessoaDto, 'dtNascimento'> & { dtNascimento: Date | null }
 
     export default defineComponent({
         name: 'PessoasPage',
@@ -297,6 +296,7 @@
             FooterComponent,
             TableComponent,
             DialogComponent,
+            MessageComponent
         },
 
         setup () {
@@ -308,7 +308,7 @@
                 onlyNumbers,
                 phoneFlexibleMask,
                 phoneMask,
-
+                paraDataBR,
                 cep,
                 cpf,
                 decimal,
@@ -335,14 +335,14 @@
 
                 currentYear: new Date().getFullYear(),
 
-                pessoas: [] as Pessoa[],
+                pessoas: [] as PessoaDto[],
 
                 formModel: {
                     dsPessoa: '',
                     nrCpf: '',
                     dsEmail: '',
                     nrTelefone: '',
-                    dtNascimento: '',
+                    dtNascimento: null,
                     dsGenero: '',
                     dsObservacoes: '',
                     xAtivo: true,
@@ -353,7 +353,7 @@
                     dsBairro: '',
                     nrNumero: '',
                     dsComplemento: '',
-                } as Pessoa,
+                } as PessoaFormModel,
 
                 dialog: false,
 
@@ -402,9 +402,12 @@
                 currentTab: 'one',
 
                 tabsConfig: [
-                    { title: 'Dados Pessoais', value: 'one' },
-                    { title: 'Endereço', value: 'two' },
+                    { title: 'Dados Pessoais', value: 'dados-pessoais' },
+                    { title: 'Endereço', value: 'endereco' },
                 ] as TabItem[],
+
+                messageDialog: false,
+                excluirPessoa: null as number | null,
             }
         },
 
@@ -412,21 +415,37 @@
             editando (): boolean {
                 return !!this.formModel.cdPessoa
             },
+
+            pessoasFormatadas (): PessoaDto[] {
+                return this.pessoas.map(pessoa => ({
+                    ...pessoa,
+                    dtNascimento: paraDataBR(pessoa.dtNascimento),
+                }))
+            },
         },
 
-        mounted () {
-            this.reset()
+        async mounted () {
             document.title = this.$route.meta.title as string
+            await this.carregarPessoas()
         },
 
         methods: {
-            newRecord (): Pessoa {
+            async carregarPessoas (): Promise<void> {
+                try {
+                    this.pessoas = await pessoaService.obterTodos()
+                } catch (error) {
+                    console.error('Erro ao carregar pessoas:', error)
+                }
+            },
+
+            novo(): PessoaFormModel {
                 return {
+                    cdPessoa: 0,
                     dsPessoa: '',
                     nrCpf: '',
                     dsEmail: '',
                     nrTelefone: '',
-                    dtNascimento: '',
+                    dtNascimento: null,
                     dsGenero: '',
                     dsObservacoes: '',
                     xAtivo: true,
@@ -440,88 +459,81 @@
                 }
             },
 
-            add (): void {
-                this.formModel = this.newRecord()
+            adicionar(): void {
+                this.formModel = this.novo()
                 this.dialog = true
             },
 
-            edit (id: number): void {
+            editar(id: number): void {
                 const found = this.pessoas.find(pessoa => pessoa.cdPessoa === id)
-
-                if (!found) {
-                    return
-                }
-
-                this.formModel = { ...found }
+                if (!found) return
+                this.formModel = { ...found, dtNascimento: paraDate(found.dtNascimento) }
                 this.dialog = true
             },
 
-            remove (id: number): void {
-                const index = this.pessoas.findIndex(pessoa => pessoa.cdPessoa === id)
-
-                if (index !== -1) {
-                    this.pessoas.splice(index, 1)
-                }
+            deletar(id: number): void {
+                this.excluirPessoa = id
+                this.messageDialog = true
             },
 
-            async save (): Promise<void> {
-                if (this.editando) {
-                    return
-                }
+            async confirmarExclusao(): Promise<void> {
+                if (this.excluirPessoa === null) return
 
                 try {
-                    const request = {
-                        DS_PESSOA: this.formModel.dsPessoa,
-                        NR_CPF: this.formModel.nrCpf,
-                        DS_EMAIL: this.formModel.dsEmail,
-                        NR_TELEFONE: this.formModel.nrTelefone,
-                        DT_NASCIMENTO: this.formModel.dtNascimento,
-                        DS_GENERO: this.formModel.dsGenero,
-                        DS_OBSERVACOES: this.formModel.dsObservacoes || null,
-                        NR_CEP: this.formModel.nrCep,
-                        DS_ENDERECO: this.formModel.dsEndereco,
-                        DS_CIDADE: this.formModel.dsCidade,
-                        DS_ESTADO: this.formModel.dsEstado,
-                        DS_BAIRRO: this.formModel.dsBairro,
-                        NR_NUMERO: this.formModel.nrNumero || null,
-                        DS_COMPLEMENTO: this.formModel.dsComplemento || null,
-                        X_ATIVO: this.formModel.xAtivo,
-                    }
-
-                    const response = await api.post('/Pessoas', request)
-
-                    this.pessoas.push(response.data)
-
-                    this.dialog = false
-                    this.formModel = this.newRecord()
+                    await pessoaService.excluir(this.excluirPessoa)
+                    await this.carregarPessoas()
                 } catch (error) {
-                    console.error('Erro ao cadastrar pessoa:', error)
+                    console.error('Erro ao excluir pessoa:', error)
+                } finally {
+                    this.excluirPessoa = null
                 }
             },
 
-            reset (): void {
+            cancelarExclusao(): void {
+                this.excluirPessoa = null
+            },
+
+            montarPayload (): PessoaCreateDto {
+                return {
+                    dsPessoa: this.formModel.dsPessoa,
+                    nrCpf: this.formModel.nrCpf,
+                    dsEmail: this.formModel.dsEmail,
+                    nrTelefone: this.formModel.nrTelefone,
+                    dtNascimento: paraIso(this.formModel.dtNascimento as Date),
+                    dsGenero: this.formModel.dsGenero,
+                    dsObservacoes: this.formModel.dsObservacoes || null,
+                    xAtivo: this.formModel.xAtivo,
+                    nrCep: this.formModel.nrCep,
+                    dsCidade: this.formModel.dsCidade,
+                    dsEstado: this.formModel.dsEstado,
+                    dsEndereco: this.formModel.dsEndereco,
+                    dsBairro: this.formModel.dsBairro,
+                    nrNumero: this.formModel.nrNumero || null,
+                    dsComplemento: this.formModel.dsComplemento || null,
+                }
+            },
+
+            async salvar(): Promise<void> {
+                try {
+                    const payload = this.montarPayload()
+
+                    if (this.editando) {
+                        await pessoaService.atualizar(this.formModel.cdPessoa, payload)
+                    } else {
+                        await pessoaService.criar(payload)
+                    }
+
+                    this.dialog = false
+                    this.formModel = this.novo()
+                    await this.carregarPessoas()
+                } catch (error) {
+                    console.error('Erro ao salvar pessoa:', error)
+                }
+            },
+
+            reiniciar(): void {
                 this.dialog = false
-                this.formModel = this.newRecord()
-                this.pessoas = [
-                    {
-                        cdPessoa: 1,
-                        dsPessoa: 'Oliveto Vinicius Di Domenico',
-                        nrCpf: '115.407.919-80',
-                        dsEmail: 'olivetoovinicius@gmail.com',
-                        nrTelefone: '(11) 99999-9999',
-                        dtNascimento: '05/03/2001',
-                        dsGenero: 'Masculino',
-                        dsObservacoes: '',
-                        xAtivo: true,
-                        nrCep: '12345-678',
-                        dsCidade: 'São Paulo',
-                        dsEstado: 'São Paulo (SP)',
-                        dsEndereco: 'Rua Exemplo',
-                        dsBairro: 'Bairro Exemplo',
-                        nrNumero: '123',
-                        dsComplemento: 'Apto 456',
-                    },
-                ]
+                this.formModel = this.novo()
             },
 
             formatarCep (valor: string) {

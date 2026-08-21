@@ -120,17 +120,19 @@
                     <v-list-item prepend-icon="mdi-logout" title="Sair" @click="confirmarSaida" />
                 </v-list>
             </v-card>
-
-            <message-component
-                v-model="showConfirmacaoSaida"
-                title="Sair"
-                message="Deseja realmente sair do sistema?"
-                confirm-text="Sim, sair"
-                cancel-text="Cancelar"
-                confirm-color="error"
-                @confirm="sair"
-            />
         </v-menu>
+
+        <MessageComponent 
+            v-model="showConfirmacaoSaida"
+            title="Sair"
+            icon-title="mdi-help-box-multiple-outline"
+            message="Tem certeza que deseja sair do sistema?"
+            confirm-text="Sair"
+            confirm-color="error"
+            cancel-text="Cancelar"
+            cancel-color="grey"
+            @confirm="sair"
+        />
     </v-navigation-drawer>
 
     <v-app-bar>
