@@ -3124,6 +3124,13 @@ pidtree@^0.6.0:
   resolved "https://registry.yarnpkg.com/pidtree/-/pidtree-0.6.1.tgz#3d03fae6183cc07091947dcc1087ce567cd3bcd3"
   integrity sha512-e0F9AOF1JMrCfBsyJOwU9lNvQ0WtXTq0j/4jk0BQ5JSI9VAybPXmDpPRw/2FQ3e5d3ZFN1mLh7jW99m/jjaptw==
 
+pinia@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/pinia/-/pinia-4.0.3.tgz#9cf9e353b3602e24a96e4ca4425817ecb9993292"
+  integrity sha512-XMQqpvjgG7LMqVhhFUzKLT4KEbsYbfZZ0CZU9PgdFm1O2VKBmIkykL8+SfNhOaT7sR0wT6BEgKT0YNDYWgmVRA==
+  dependencies:
+    nostics "^1.1.4"
+
 pkce-challenge@^5.0.0:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/pkce-challenge/-/pkce-challenge-5.0.1.tgz#3b4446865b17b1745e9ace2016a31f48ddf6230d"

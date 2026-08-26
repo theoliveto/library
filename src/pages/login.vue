@@ -7,10 +7,11 @@
         />
 
         <v-card class="mx-auto pa-12 pb-8" elevation="3" max-width="448" rounded="lg">
-            <v-text-field
-                label="E-mail"
-                variant="outlined"
-                persistent-placeholder
+            <v-text-field 
+                v-model="email"  
+                label="E-mail" 
+                variant="outlined" 
+                persistent-placeholder 
             />
 
             <div class="text-body-large text-medium-emphasis d-flex align-center justify-space-between">
@@ -27,6 +28,7 @@
             </div>
 
             <v-text-field
+                v-model="senha"
                 :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
                 :type="visible ? 'text' : 'password'"
                 label="Senha"
@@ -35,11 +37,7 @@
                 @click:append-inner="visible = !visible"
             />
 
-            <v-card
-                class="mb-6"
-                color="surface-variant"
-                variant="tonal"
-            >
+            <v-card class="mb-6" color="surface-variant" variant="tonal">
                 <v-card-text class="text-medium-emphasis text-body-small text-justify">
                     <strong>Atenção: </strong> Após <strong>3 tentativas</strong> consecutivas de login malsucedidas,
                     sua conta será bloqueada por 3 horas.
@@ -55,7 +53,7 @@
                 size="large"
                 variant="tonal"
                 block
-                to="/"
+                @click="entrar"
             >
                 Entrar
             </v-btn>
@@ -65,15 +63,40 @@
 
 <script lang="ts">
     import { defineComponent } from 'vue'
+    import { useAuthStore } from '@/stores/auth'
+    import { useRouter } from 'vue-router'
 
     export default defineComponent ({
         name: 'LoginPage',
+
         data () {
             return {
-                user: 'Oliveto',
+                email: '',
+                senha: '',
                 visible: false,
+                authStore: useAuthStore(),
+                router: useRouter()
             }
         },
+        
+        mounted () {
+            document.title = this.$route.meta.title as string
+        },
+
+        methods: {
+            async entrar() {
+                try {
+                    await this.authStore.login(
+                        this.email,
+                        this.senha,
+                    )
+
+                    this.router.push('/')
+                } catch (error) {
+                    console.error(error)
+                }
+            }
+        }
     })
 </script>
 

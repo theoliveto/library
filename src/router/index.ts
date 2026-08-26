@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 import Index from '@/pages/index.vue'
 import Login from '@/pages/login.vue'
@@ -27,7 +28,8 @@ export interface TitleHeader {
 
 declare module 'vue-router' {
   interface RouteMeta {
-      breadcrumbs?: TitleHeader[]
+    breadcrumbs?: TitleHeader[],
+    requiresAuth?: boolean
   }
 }
 
@@ -38,6 +40,7 @@ const router = createRouter({
       path: '/',
       component: Index,
       meta: {
+        requiresAuth: true,
         title: 'Library | Dashboard',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -54,6 +57,7 @@ const router = createRouter({
       path: '/autores',
       component: Autores,
       meta: {
+        requiresAuth: true,
         title: 'Library | Autores',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -66,6 +70,7 @@ const router = createRouter({
       path: '/categorias',
       component: Categorias,
       meta: {
+        requiresAuth: true,
         title: 'Library | Categorias',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -78,6 +83,7 @@ const router = createRouter({
       path: '/editoras',
       component: Editoras,
       meta: {
+        requiresAuth: true,
         title: 'Library | Editoras',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -90,6 +96,7 @@ const router = createRouter({
       path: '/exemplares',
       component: Exemplares,
       meta: {
+        requiresAuth: true,
         title: 'Library | Exemplares',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -102,6 +109,7 @@ const router = createRouter({
       path: '/livros',
       component: Livros,
       meta: {
+        requiresAuth: true,
         title: 'Library | Livros',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -114,6 +122,7 @@ const router = createRouter({
       path: '/devolucoes',
       component: Devolucoes,
       meta: {
+        requiresAuth: true,
         title: 'Library | Devoluções',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -126,6 +135,7 @@ const router = createRouter({
       path: '/emprestimos',
       component: Emprestimos,
       meta: {
+        requiresAuth: true,
         title: 'Library | Empréstimos',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -138,6 +148,7 @@ const router = createRouter({
       path: '/reservas',
       component: Reservas,
       meta: {
+        requiresAuth: true,
         title: 'Library | Reservas',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -150,6 +161,7 @@ const router = createRouter({
       path: '/atrasados',
       component: Atrasados,
       meta: {
+        requiresAuth: true,
         title: 'Library | Atrasados',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -162,6 +174,7 @@ const router = createRouter({
       path: '/historico',
       component: Historico,
       meta: {
+        requiresAuth: true,
         title: 'Library | Histórico',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -174,6 +187,7 @@ const router = createRouter({
       path: '/multas',
       component: Multas,
       meta: {
+        requiresAuth: true,
         title: 'Library | Multas',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -186,6 +200,7 @@ const router = createRouter({
       path: '/pessoas',
       component: Pessoas,
       meta: {
+        requiresAuth: true,
         title: 'Library | Pessoas',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -198,6 +213,7 @@ const router = createRouter({
       path: '/usuarios',
       component: Usuarios,
       meta: {
+        requiresAuth: true,
         title: 'Library | Usuários',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -210,6 +226,7 @@ const router = createRouter({
       path: '/relatorios',
       component: Relatorios,
       meta: {
+        requiresAuth: true,
         title: 'Library | Relatórios',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -221,6 +238,7 @@ const router = createRouter({
       path: '/perfil',
       component: Perfil,
       meta: {
+        requiresAuth: true,
         title: 'Library | Perfil',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -232,6 +250,7 @@ const router = createRouter({
       path: '/configuracoes',
       component: Configuracoes,
       meta: {
+        requiresAuth: true,
         title: 'Library | Configurações',
         breadcrumbs: [
           { title: 'Home', disabled: false, href: '/' },
@@ -240,6 +259,16 @@ const router = createRouter({
       },
     },
   ],
+})
+
+router.beforeEach((to) => {
+  const authStore = useAuthStore()
+
+  if (to.meta.requiresAuth && !authStore.autenticado) {
+    return '/login'
+  }
+
+  return true
 })
 
 export default router
