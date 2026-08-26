@@ -65,6 +65,7 @@
                                             persistent-placeholder
                                             clearable
                                             :rules="[required(), cpf()]"
+                                            :error-messages="cpfError"
                                             @update:model-value="value => formModel.nrCpf = cpfMask(value)"
                                         >
                                             <template #label>
@@ -81,6 +82,7 @@
                                             persistent-placeholder
                                             clearable
                                             :rules="[required(), email(), maxLength(100)]"
+                                            :error-messages="emailError"
                                         >
                                             <template #label>
                                                 E-mail <span class="text-error">*</span>
@@ -279,6 +281,7 @@
     import { paraIso, paraDate, paraDataBR } from '@/utils/dateConverter'
     import { cepMask, cpfMask, dateMask, numberMask, onlyNumbers, phoneFlexibleMask, phoneMask } from '@/utils/masks.ts'
     import { cep, cpf, decimal, email, integer, maxLength, minLength, numeric, phone, required, textOnly } from '@/utils/validators.ts'
+    import { useSnackbar } from '@/utils/useSnackbar'
 
     import HeaderComponent from '@/components/HeaderComponent.vue'
     import FooterComponent from '@/components/FooterComponent.vue'
@@ -300,6 +303,13 @@
         },
 
         setup () {
+            const {
+                success,
+                error,
+                warning,
+                info
+            } = useSnackbar()
+
             return {
                 cepMask,
                 cpfMask,
@@ -320,6 +330,10 @@
                 phone,
                 required,
                 textOnly,
+                success,
+                error,
+                warning,
+                info
             }
         },
 
@@ -328,10 +342,10 @@
                 loadingCep: false,
 
                 cepError: '',
+                cpfError: '',
+                emailError: '',
 
                 search: '',
-
-                tab: 'one',
 
                 currentYear: new Date().getFullYear(),
 
@@ -399,7 +413,7 @@
 
                 ativo: false,
 
-                currentTab: 'one',
+                currentTab: 'dados-pessoais',
 
                 tabsConfig: [
                     { title: 'Dados Pessoais', value: 'dados-pessoais' },
@@ -435,6 +449,7 @@
                     this.pessoas = await pessoaService.obterTodos()
                 } catch (error) {
                     console.error('Erro ao carregar pessoas:', error)
+                    this.error('Erro ao carregar Pessoas.')
                 }
             },
 
@@ -482,8 +497,10 @@
                 try {
                     await pessoaService.excluir(this.excluirPessoa)
                     await this.carregarPessoas()
+                    this.success('Pessoa excluída com sucesso.')
                 } catch (error) {
                     console.error('Erro ao excluir pessoa:', error)
+                    this.error('Erro ao excluir Pessoa.')
                 } finally {
                     this.excluirPessoa = null
                 }
@@ -519,8 +536,10 @@
 
                     if (this.editando) {
                         await pessoaService.atualizar(this.formModel.cdPessoa, payload)
+                        this.success('Pessoa atualizada com sucesso.')
                     } else {
                         await pessoaService.criar(payload)
+                        this.success('Pessoa salva com sucesso.')
                     }
 
                     this.dialog = false
@@ -528,6 +547,7 @@
                     await this.carregarPessoas()
                 } catch (error) {
                     console.error('Erro ao salvar pessoa:', error)
+                    this.error('Erro ao salvar Pessoa.')
                 }
             },
 
@@ -591,6 +611,69 @@
                 this.formModel.dsCidade = ''
                 this.formModel.dsEstado = ''
                 this.formModel.dsComplemento = ''
+            },
+
+            alterarCpf(value: string) {
+                this.formModel.nrCpf = cpfMask(value)
+
+                this.cpfError = ''
+
+                const cpfLimpo = this.formModel.nrCpf.replace(/\D/g, '')
+
+                if (cpfLimpo.length !== 11) {
+                    return
+                }
+
+                this.verificarCpf()
+            },
+
+            async verificarCpf(): Promise<void> {
+                try {
+
+                    const response = await pessoaService.verificarCpf(
+                        this.formModel.nrCpf,
+                        this.formModel.cdPessoa
+                    )
+
+                    if (response.existe) {
+                        this.cpfError = 'Este CPF já está cadastrado.'
+                    }
+
+                } catch (error) {
+                    console.error('Erro ao verificar CPF:', error)
+
+                }
+            },
+
+            alterarEmail(value: string) {
+                this.formModel.dsEmail = value
+
+                this.emailError = ''
+
+                if (!value) {
+                    return
+                }
+
+                this.verificarEmail()
+            },
+
+            async verificarEmail(): Promise<void> {
+                try {
+
+                    const response = await pessoaService.verificarEmail(
+                        this.formModel.dsEmail,
+                        this.formModel.cdPessoa
+                    )
+
+                    if (response.existe) {
+                        this.emailError = 'Este e-mail já está cadastrado.'
+                    }
+
+                } catch (error) {
+
+                    console.error('Erro ao verificar e-mail:', error)
+
+                }
             },
         },
     })

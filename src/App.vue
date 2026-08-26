@@ -2,11 +2,14 @@
   <v-app>
     <v-main>
       <router-view />
+      <SnackbarComponent />
     </v-main>
   </v-app>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+  import SnackbarComponent from '@/components/SnackbarComponent.vue'
+</script>
 
 <style>
   html {

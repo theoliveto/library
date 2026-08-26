@@ -28,4 +28,20 @@ export const pessoaService = {
     criar: (dto: PessoaCreateDto) => api.post<PessoaDto>('/pessoas', dto).then(r => r.data),
     atualizar: (id: number, dto: PessoaUpdateDto) => api.put(`/pessoas/${id}`, dto),
     excluir: (id: number) => api.delete(`/pessoas/${id}`),
+
+    async verificarCpf(cpf: string, cdPessoa?: number) {
+        const response = await api.get('/pessoas/verificar-cpf', {
+            params: { cpf, cdPessoa }
+        })
+    
+        return response.data
+    },
+
+    async verificarEmail(email: string, cdPessoa?: number) {
+        const response = await api.get('/pessoas/verificar-email', {
+            params: { email, cdPessoa }
+        })
+    
+        return response.data
+    },
 }
