@@ -1,14 +1,16 @@
 import { api } from '../api'
 
 export interface LoginRequest {
-    email: string
-    senha: string
+    dsLogin: string
+    dsSenha: string
 }
 
 export interface UsuarioAuthDto {
-    id: number
-    nome: string
-    login: string
+    cdUsuario: number
+    dsUsuario: string
+    dsLogin: string
+    dsEmail: string
+    xAdministrador: boolean
 }
 
 export interface LoginResponse {
@@ -18,13 +20,7 @@ export interface LoginResponse {
 
 export const authService = {
     async login(dto: LoginRequest): Promise<LoginResponse> {
-        return {
-            token: 'token-teste',
-            usuario: {
-                id: 1,
-                nome: 'Administrador',
-                login: dto.email,
-            },
-        }
+        const response = await api.post<LoginResponse>('/auth/login', dto)
+        return response.data
     },
 }

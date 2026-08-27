@@ -220,6 +220,11 @@ const router = createRouter({
           { title: 'Perfis', disabled: true },
           { title: 'Usuários', disabled: true },
         ],
+        table: {
+          title: 'Usuários',
+          icon: 'mdi-account-edit-outline',
+          itemKey: 'cdUsuario'
+        }
       },
     },
     {

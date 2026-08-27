@@ -3,13 +3,13 @@
         <v-img
             class="mx-auto my-6"
             max-width="228"
-            src="https://cdn.vuetifyjs.com/docs/images/logos/vuetify-logo-v3-slim-text-light.svg"
+            src="../../public/logo.png"
         />
 
         <v-card class="mx-auto pa-12 pb-8" elevation="3" max-width="448" rounded="lg">
             <v-text-field 
-                v-model="email"  
-                label="E-mail" 
+                v-model="login"  
+                label="Login" 
                 variant="outlined" 
                 persistent-placeholder 
             />
@@ -53,10 +53,11 @@
                 size="large"
                 variant="tonal"
                 block
+                :loading="carregando"
+                :disabled="carregando"
                 @click="entrar"
-            >
-                Entrar
-            </v-btn>
+                text="Entrar"
+            />
         </v-card>
     </div>
 </template>
@@ -71,11 +72,12 @@
 
         data () {
             return {
-                email: '',
+                login: '',
                 senha: '',
                 visible: false,
                 authStore: useAuthStore(),
-                router: useRouter()
+                router: useRouter(),
+                carregando: false,
             }
         },
         
@@ -86,14 +88,18 @@
         methods: {
             async entrar() {
                 try {
+                    this.carregando = true
+
                     await this.authStore.login(
-                        this.email,
+                        this.login,
                         this.senha,
                     )
 
                     this.router.push('/')
                 } catch (error) {
                     console.error(error)
+                } finally {
+                    this.carregando = false
                 }
             }
         }
@@ -102,7 +108,7 @@
 
 <style scoped>
     .mt-20 {
-        margin-top: 90px;
+        margin-top: 60px;
     }
 
     .hidden {

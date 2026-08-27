@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { authService, type UsuarioAuthDto, } from '@/services/Auth/authService'
+import { authService, type UsuarioAuthDto } from '@/services/Auth/authService'
 
 export const useAuthStore = defineStore('auth', () => {
     const usuario = ref<UsuarioAuthDto | null>(null)
@@ -10,10 +10,10 @@ export const useAuthStore = defineStore('auth', () => {
         return token.value !== null
     })
 
-    async function login(email: string, senha: string) {
+    async function login(login: string, senha: string) {
         const resposta = await authService.login({
-            email,
-            senha,
+            dsLogin: login,
+            dsSenha: senha,
         })
 
         token.value = resposta.token
