@@ -51,7 +51,10 @@ const router = createRouter({
     {
       path: '/login',
       component: Login,
-      meta: { title: 'Library | Login' },
+      meta: { 
+        requiresAuth: false,
+        title: 'Library | Login' 
+      },
     },
     {
       path: '/autores',
@@ -271,6 +274,10 @@ router.beforeEach((to) => {
 
   if (to.meta.requiresAuth && !authStore.autenticado) {
     return '/login'
+  }
+
+  if (to.path === '/login' && authStore.autenticado) {
+    return '/'
   }
 
   return true

@@ -1,10 +1,15 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { authService, type UsuarioAuthDto } from '@/services/Auth/authService'
+import { authService, type UsuarioAuthDto } from '@/services/Auth/service'
 
 export const useAuthStore = defineStore('auth', () => {
-    const usuario = ref<UsuarioAuthDto | null>(null)
-    const token = ref<string | null>(null)
+    const token = ref<string | null>(
+        localStorage.getItem('auth_token')
+    )
+
+    const usuario = ref<UsuarioAuthDto | null>(
+        JSON.parse(localStorage.getItem('auth_usuario') || 'null')
+    )
 
     const autenticado = computed(() => {
         return token.value !== null
@@ -18,11 +23,40 @@ export const useAuthStore = defineStore('auth', () => {
 
         token.value = resposta.token
         usuario.value = resposta.usuario
+
+        localStorage.setItem(
+            'auth_token',
+            resposta.token
+        )
+
+        localStorage.setItem(
+            'auth_usuario',
+            JSON.stringify(resposta.usuario)
+        )
     }
 
     function logout() {
         token.value = null
         usuario.value = null
+
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('auth_usuario')
+    }
+
+    async function restaurarSessao() {
+        const tokenSalvo = localStorage.getItem('token')
+    
+        if (!tokenSalvo) {
+            return
+        }
+    
+        token.value = tokenSalvo
+    
+        try {
+            usuario.value = await authService.obterUsuarioAtual()
+        } catch {
+            logout()
+        }
     }
 
     return {
@@ -30,6 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
         token,
         autenticado,
         login,
+        restaurarSessao,
         logout,
     }
 })

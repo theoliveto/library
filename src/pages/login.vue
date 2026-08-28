@@ -3,7 +3,7 @@
         <v-img
             class="mx-auto my-6"
             max-width="228"
-            src="../../public/logo.png"
+            src="/logo.png"
         />
 
         <v-card class="mx-auto pa-12 pb-8" elevation="3" max-width="448" rounded="lg">
@@ -66,9 +66,26 @@
     import { defineComponent } from 'vue'
     import { useAuthStore } from '@/stores/auth'
     import { useRouter } from 'vue-router'
+    import { useSnackbar } from '@/utils/useSnackbar'
 
     export default defineComponent ({
         name: 'LoginPage',
+
+        setup () {
+            const {
+                success,
+                error,
+                warning,
+                info
+            } = useSnackbar()
+
+            return {
+                success,
+                error,
+                warning,
+                info
+            }
+        },
 
         data () {
             return {
@@ -96,8 +113,10 @@
                     )
 
                     this.router.push('/')
+                    this.success('Login realizado com sucesso.')
                 } catch (error) {
                     console.error(error)
+                    this.success('Ocorreu um erro ao acessar o sistema.')
                 } finally {
                     this.carregando = false
                 }

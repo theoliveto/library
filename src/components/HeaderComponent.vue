@@ -97,12 +97,12 @@
                 <v-list-item v-bind="props" class="usuario-sidebar">
                     <template #prepend>
                         <v-avatar color="primary" size="38">
-                            <span class="text-white">OD</span>
+                            <span class="text-white">{{ authStore.usuario?.dsUsuario?.charAt(0).toUpperCase() }}</span>
                         </v-avatar>
                     </template>
 
-                    <v-list-item-title>{{ user }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ profile }}</v-list-item-subtitle>
+                    <v-list-item-title>{{ authStore.usuario?.dsUsuario }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ authStore.usuario?.xAdministrador ? 'Administrador' : 'Usuário' }}</v-list-item-subtitle>
 
                     <template #append>
                         <v-icon size="18" icon="mdi-chevron-up" />
@@ -173,7 +173,8 @@
 
 <script lang="ts">
     import { defineComponent, type PropType } from 'vue'
-    import MessageComponent from './MessageComponent.vue';
+    import MessageComponent from './MessageComponent.vue'
+    import { useAuthStore } from '@/stores/auth'
 
     export interface TitleHeader {
         title: string
@@ -199,9 +200,7 @@
             return {
                 drawer: true,
 
-                user: 'Oliveto',
-
-                profile: 'Administrador',
+                authStore: useAuthStore(),
 
                 pesquisaMenu: '',
 
@@ -348,7 +347,7 @@
             },
 
             sair() {
-                localStorage.removeItem('token')
+                this.authStore.logout()
                 this.$router.push('/login')
             }
         },
