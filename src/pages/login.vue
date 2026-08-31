@@ -19,7 +19,7 @@
 
                 <a
                     class="text-body-small text-decoration-none text-blue"
-                    href="#"
+                    href="/reset-password"
                     rel="noopener noreferrer"
                     target="_blank"
                 >
@@ -116,7 +116,7 @@
                     this.success('Login realizado com sucesso.')
                 } catch (error) {
                     console.error(error)
-                    this.success('Ocorreu um erro ao acessar o sistema.')
+                    this.error('Ocorreu um erro ao acessar o sistema.')
                 } finally {
                     this.carregando = false
                 }

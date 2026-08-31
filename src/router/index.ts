@@ -19,6 +19,7 @@ import Usuarios from '@/pages/perfis/usuarios.vue'
 import Relatorios from '@/pages/relatorios.vue'
 import Configuracoes from '@/pages/configuracoes.vue'
 import Perfil from '@/pages/perfil.vue'
+import ResetPassword from '@/pages/reset-password.vue'
 
 export interface TitleHeader {
   title: string
@@ -264,6 +265,13 @@ const router = createRouter({
           { title: 'Home', disabled: false, href: '/' },
           { title: 'Configurações', disabled: true },
         ],
+      },
+    },
+    {
+      path: '/reset-password',
+      component: ResetPassword,
+      meta: {
+        title: 'Library | Redefinir Senha',
       },
     },
   ],
