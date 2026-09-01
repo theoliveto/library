@@ -11,7 +11,7 @@
             </v-card-text>
 
             <v-card-actions class="pa-4 pt-0 justify-end">
-                <v-btn variant="outlined" @click="handleCancel" :text="cancelText" />
+                <v-btn v-if="showCancel" variant="outlined" @click="handleCancel" :text="cancelText" />
                 <v-btn :color="confirmColor" variant="flat" @click="handleConfirm" :text="confirmText" />
             </v-card-actions>
         </v-card>
@@ -31,7 +31,8 @@
             confirmText: { type: String, default: 'Sim' },
             cancelText: { type: String, default: 'Não' },
             confirmColor: { type: String, default: 'primary' },
-            iconTitle: { type: String, default: 'mdi-help-circle-outline' }
+            iconTitle: { type: String, default: 'mdi-help-circle-outline' },
+            showCancel: { type: Boolean, default: true }
         },
 
         emits: ['update:modelValue', 'confirm', 'cancel'],

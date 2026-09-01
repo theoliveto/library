@@ -9,6 +9,14 @@
 
 <script lang="ts" setup>
   import SnackbarComponent from '@/components/SnackbarComponent.vue'
+  import { useAuthStore } from '@/stores/auth'
+  import { onMounted } from 'vue'
+
+  const authStore = useAuthStore()
+
+  onMounted(async () => {
+    await authStore.restaurarSessao()
+  })
 </script>
 
 <style>

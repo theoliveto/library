@@ -58,6 +58,16 @@
                 text="Entrar"
             />
         </v-card>
+
+        <MessageComponent
+            v-model="showErroLogin"
+            title="Erro ao entrar"
+            icon-title="mdi-alert-circle-outline"
+            :message="mensagemErro"
+            confirm-text="OK"
+            confirm-color="primary"
+            :show-cancel="false"
+        />
     </div>
 </template>
 
@@ -67,8 +77,14 @@
     import { useRouter } from 'vue-router'
     import { useSnackbar } from '@/utils/useSnackbar'
 
+    import MessageComponent from '@/components/MessageComponent.vue'
+
     export default defineComponent ({
         name: 'LoginPage',
+
+        components: {
+            MessageComponent
+        },
 
         setup () {
             const {
@@ -94,6 +110,8 @@
                 authStore: useAuthStore(),
                 router: useRouter(),
                 carregando: false,
+                mensagemErro: '',
+                showErroLogin: false
             }
         },
         
@@ -113,9 +131,10 @@
 
                     this.router.push('/')
                     this.success('Login realizado com sucesso.')
-                } catch (error) {
-                    console.error(error)
-                    this.error('Ocorreu um erro ao acessar o sistema.')
+                } catch (error: any) {
+                    this.mensagemErro = error.response?.data?.mensagem ?? 'Não foi possível realizar o login.'
+
+                    this.showErroLogin = true
                 } finally {
                     this.carregando = false
                 }

@@ -44,7 +44,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     async function restaurarSessao() {
-        const tokenSalvo = localStorage.getItem('token')
+        const tokenSalvo = localStorage.getItem('auth_token')
     
         if (!tokenSalvo) {
             return
