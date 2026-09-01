@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 import Index from '@/pages/index.vue'
-import Login from '@/pages/login.vue'
+import Login from '@/pages/autenticacao/login.vue'
 import Autores from '@/pages/acervo/autores.vue'
 import Categorias from '@/pages/acervo/categorias.vue'
 import Editoras from '@/pages/acervo/editoras.vue'
@@ -19,7 +19,8 @@ import Usuarios from '@/pages/perfis/usuarios.vue'
 import Relatorios from '@/pages/relatorios.vue'
 import Configuracoes from '@/pages/configuracoes.vue'
 import Perfil from '@/pages/perfil.vue'
-import ResetPassword from '@/pages/reset-password.vue'
+import ResetPassword from '@/pages/autenticacao/reset-password.vue'
+import ForgotPassword from '@/pages/autenticacao/forgot-password.vue'
 
 export interface TitleHeader {
   title: string
@@ -272,6 +273,13 @@ const router = createRouter({
       component: ResetPassword,
       meta: {
         title: 'Library | Redefinir Senha',
+      },
+    },
+    {
+      path: '/forgot-password',
+      component: ForgotPassword,
+      meta: {
+        title: 'Library | Esqueci minha Senha',
       },
     },
   ],

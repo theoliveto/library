@@ -19,9 +19,8 @@
 
                 <a
                     class="text-body-small text-decoration-none text-blue"
-                    href="/reset-password"
+                    href="/forgot-password"
                     rel="noopener noreferrer"
-                    target="_blank"
                 >
                     Esqueci minha senha
                 </a>
