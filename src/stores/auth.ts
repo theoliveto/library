@@ -54,7 +54,7 @@ export const useAuthStore = defineStore('auth', () => {
     
         try {
             usuario.value = await authService.obterUsuarioAtual()
-        } catch {
+        } catch (error) {
             logout()
         }
     }

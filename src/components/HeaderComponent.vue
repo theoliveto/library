@@ -56,23 +56,36 @@
         </div>
 
         <!-- Menus -->
-        <v-list density="compact" class="menu-principal">
-            <template v-for="menu in menusFiltrados" :key="menu.title">
+        <v-list v-model:opened="gruposAbertos" density="compact" class="menu-principal">
+            <div v-if="pesquisaMenu.trim() && !temResultadoPesquisa" class="nenhum-resultado">
+                <v-icon icon="mdi-magnify-close" size="20" />
 
+                <div>
+                    <div class="nenhum-resultado-titulo">Nenhum resultado encontrado</div>
+                </div>
+            </div>
+
+            <template v-for="menu in menusFiltrados" :key="menu.title">
                 <v-list-item
                     v-if="!menu.children"
                     :to="menu.to"
                     :prepend-icon="menu.icon"
-                    :title="menu.title"
-                />
+                >
+                    <template #title>
+                        <span v-html="destacarTexto(menu.title)"></span>
+                    </template>
+                </v-list-item>
 
                 <v-list-group v-else :value="menu.title">
                     <template #activator="{ props }">
                         <v-list-item
                             v-bind="props"
                             :prepend-icon="menu.icon"
-                            :title="menu.title"
-                        />
+                        >
+                            <template #title>
+                                <span v-html="destacarTexto(menu.title)"></span>
+                            </template>
+                        </v-list-item>
                     </template>
 
                     <div class="setback">
@@ -81,8 +94,11 @@
                             :key="item.title"
                             :to="item.to"
                             :prepend-icon="item.icon"
-                            :title="item.title"
-                        />
+                        >
+                            <template #title>
+                                <span v-html="destacarTexto(item.title)"></span>
+                            </template>    
+                        </v-list-item>
                     </div>
                 </v-list-group>
 
@@ -332,7 +348,9 @@
                     },
                 ],
 
-                showConfirmacaoSaida: false
+                showConfirmacaoSaida: false,
+
+                gruposAbertos: [] as string[],
             }
         },
 
@@ -349,7 +367,32 @@
             sair() {
                 this.authStore.logout()
                 this.$router.push('/login')
-            }
+            },
+
+            destacarTexto(texto: string) {
+                const pesquisa = this.pesquisaMenu.trim()
+
+                if (!pesquisa) {
+                    return texto
+                }
+
+                const textoEscapado = pesquisa.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+                return texto.replace(
+                    new RegExp(`(${textoEscapado})`, 'gi'),
+                    '<span class="texto-pesquisa">$1</span>'
+                )
+            },
+
+            itemEncontrado(texto: string) {
+                const pesquisa = this.pesquisaMenu.trim().toLowerCase()
+
+                if (!pesquisa) {
+                    return false
+                }
+
+                return texto.toLowerCase().includes(pesquisa)
+            },
         },
 
         computed: {
@@ -386,6 +429,39 @@
                         return menu.title.toLowerCase().includes(pesquisa) ? menu : null
                     })
                     .filter(Boolean)
+            },
+
+            temResultadoPesquisa() {
+                return this.menusFiltrados.length > 0
+            },
+        },
+
+        watch: {
+            pesquisaMenu(valor: string) {
+                const pesquisa = valor.trim().toLowerCase()
+
+                if (!pesquisa) {
+                    this.gruposAbertos = []
+                    return
+                }
+
+                this.gruposAbertos = this.menus
+                    .filter((menu: any) => {
+                        if (!menu.children) {
+                            return false
+                        }
+
+                        const menuEncontrado = menu.title
+                            .toLowerCase()
+                            .includes(pesquisa)
+
+                        const filhoEncontrado = menu.children.some((item: any) =>
+                            item.title.toLowerCase().includes(pesquisa)
+                        )
+
+                        return menuEncontrado || filhoEncontrado
+                    })
+                    .map((menu: any) => menu.title)
             },
         },
     })
@@ -517,5 +593,26 @@
 
     .pesquisa-sidebar :deep(input::placeholder) {
         color: rgba(255, 255, 255, 0.5);
+    }
+
+    .texto-pesquisa {
+        background-color: #41b3e7;
+        color: white;
+        border-radius: 3px;
+        padding: 0 2px;
+    }
+
+    .nenhum-resultado {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 16px;
+        color: #90a4ae;
+    }
+
+    .nenhum-resultado-titulo {
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 4px;
     }
 </style>

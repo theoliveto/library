@@ -30,15 +30,35 @@ export interface ResetPasswordRequest {
 export const authService = {
 
     async login(dto: LoginRequest): Promise<LoginResponse> {
-        const response = await api.post<LoginResponse>('/auth/login', dto)
-
-        return response.data
+        const response = await api.post('/auth/login', dto)
+    
+        const data = response.data
+    
+        return {
+            token: data.token,
+    
+            usuario: {
+                cdUsuario: data.usuario.cD_USUARIO,
+                dsUsuario: data.usuario.dS_USUARIO,
+                dsLogin: data.usuario.dS_LOGIN,
+                dsEmail: data.usuario.dS_EMAIL,
+                xAdministrador: data.usuario.x_ADMINISTRADOR,
+            }
+        }
     },
 
     obterUsuarioAtual: async (): Promise<UsuarioAuthDto> => {
-        const response = await api.get<UsuarioAuthDto>('/auth/me')
+        const response = await api.get('/auth/me')
     
-        return response.data
+        const usuario = response.data
+    
+        return {
+            cdUsuario: usuario.cD_USUARIO,
+            dsUsuario: usuario.dS_USUARIO,
+            dsLogin: usuario.dS_LOGIN,
+            dsEmail: usuario.dS_EMAIL,
+            xAdministrador: usuario.x_ADMINISTRADOR,
+        }
     },
 
     async solicitarRecuperacaoSenha(dto: ForgotPasswordRequest) {
