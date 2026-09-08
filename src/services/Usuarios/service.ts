@@ -9,6 +9,7 @@ export interface ModelDto {
     dsObservacoes: string | null
     xAtivo: boolean
     xAdministrador: boolean
+    imPerfil: string | null
 }
 
 export type ModelCreateDto = Omit<ModelDto, 'cdUsuario'>

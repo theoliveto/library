@@ -239,22 +239,6 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.cdExemplar"
-                                            prepend-inner-icon="mdi-magnify"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                            :rules="[required()]"
-                                        >
-                                            <template #label>
-                                                Exemplar <span class="text-error">*</span>
-                                            </template>
-                                        </v-text-field>
-                                    </v-col>
-
-                                    <v-col cols="12" md="6">
-                                        <v-text-field
-                                            class="mt-n2"
                                             v-model="formModel.cdEditora"
                                             prepend-inner-icon="mdi-magnify"
                                             variant="outlined"

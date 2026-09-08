@@ -258,6 +258,7 @@
                     dsObservacoes: '',
                     xAtivo: true,
                     xAdministrador: false,
+                    imPerfil: null,
                 }
             },
 
@@ -306,6 +307,7 @@
                     dsObservacoes: this.formModel.dsObservacoes || null,
                     xAtivo: this.formModel.xAtivo,
                     xAdministrador: this.formModel.xAdministrador,
+                    imPerfil: this.formModel.imPerfil || null,
                 }
             },
 

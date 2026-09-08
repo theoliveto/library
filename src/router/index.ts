@@ -69,6 +69,11 @@ const router = createRouter({
           { title: 'Acervo', disabled: true },
           { title: 'Autores', disabled: true },
         ],
+        table: {
+          title: 'Autores',
+          icon: 'mdi-fountain-pen-tip',
+          itemKey: 'cdAutor'
+        }
       },
     },
     {
@@ -82,6 +87,11 @@ const router = createRouter({
           { title: 'Acervo', disabled: true },
           { title: 'Categorias', disabled: true },
         ],
+        table: {
+          title: 'Categorias',
+          icon: 'mdi-content-duplicate',
+          itemKey: 'cdCategoria'
+        }
       },
     },
     {
@@ -95,6 +105,11 @@ const router = createRouter({
           { title: 'Acervo', disabled: true },
           { title: 'Editoras', disabled: true },
         ],
+        table: {
+          title: 'Editoras',
+          icon: 'mdi-newspaper-variant-outline',
+          itemKey: 'cdEditor'
+        }
       },
     },
     {
@@ -108,6 +123,11 @@ const router = createRouter({
           { title: 'Acervo', disabled: true },
           { title: 'Exemplares', disabled: true },
         ],
+        table: {
+          title: 'Exemplares',
+          icon: 'mdi-book-multiple-outline',
+          itemKey: 'cdExemplar'
+        }
       },
     },
     {
@@ -121,6 +141,11 @@ const router = createRouter({
           { title: 'Acervo', disabled: true },
           { title: 'Livros', disabled: true },
         ],
+        table: {
+          title: 'Livros',
+          icon: 'mdi-book',
+          itemKey: 'cdLivro'
+        }
       },
     },
     {
@@ -134,6 +159,11 @@ const router = createRouter({
           { title: 'Circulação', disabled: true },
           { title: 'Devoluções', disabled: true },
         ],
+        table: {
+          title: 'Devoluções',
+          icon: 'mdi-arrow-u-left-top-bold',
+          itemKey: 'cdDevolucao'
+        }
       },
     },
     {
@@ -147,6 +177,11 @@ const router = createRouter({
           { title: 'Circulação', disabled: true },
           { title: 'Empréstimos', disabled: true },
         ],
+        table: {
+          title: 'Empréstimos',
+          icon: 'mdi-arrow-u-right-top-bold',
+          itemKey: 'cdEmprestimo'
+        }
       },
     },
     {
@@ -160,6 +195,11 @@ const router = createRouter({
           { title: 'Circulação', disabled: true },
           { title: 'Reservas', disabled: true },
         ],
+        table: {
+          title: 'Empréstimos',
+          icon: 'mdi-arrow-u-right-top-bold',
+          itemKey: 'cdEmprestimo'
+        }
       },
     },
     {
@@ -173,6 +213,11 @@ const router = createRouter({
           { title: 'Controle', disabled: true },
           { title: 'Atrasados', disabled: true },
         ],
+        table: {
+          title: 'Atrasados',
+          icon: 'mdi-clock-alert-outline',
+          itemKey: 'cdAtraso'
+        }
       },
     },
     {
@@ -186,6 +231,11 @@ const router = createRouter({
           { title: 'Controle', disabled: true },
           { title: 'Atrasados', disabled: true },
         ],
+        table: {
+          title: 'Histórico',
+          icon: 'mdi-history',
+          itemKey: 'cdHistorico'
+        }
       },
     },
     {
@@ -199,6 +249,11 @@ const router = createRouter({
           { title: 'Controle', disabled: true },
           { title: 'Multas', disabled: true },
         ],
+        table: {
+          title: 'Multas',
+          icon: 'mdi-cash-minus',
+          itemKey: 'cdMulta'
+        }
       },
     },
     {
@@ -212,6 +267,11 @@ const router = createRouter({
           { title: 'Perfis', disabled: true },
           { title: 'Pessoas', disabled: true },
         ],
+        table: {
+          title: 'Pessoas',
+          icon: 'mdi-account-group-outline',
+          itemKey: 'cdPessoa'
+        }
       },
     },
     {

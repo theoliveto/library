@@ -172,3 +172,66 @@ export function cep (message = 'Digite um CEP válido'): ValidationRule {
         return cepValue.length === 8 || message
     }
 }
+
+// Valida CNPJ. Aceita CNPJ com ou sem máscara.
+export function cnpj (message = 'Digite um CNPJ válido'): ValidationRule {
+    return (value: unknown) => {
+        if (value === null || value === undefined || value === '') {
+            return true
+        }
+
+        const cnpjValue = String(value).replace(/\D/g, '')
+
+        if (cnpjValue.length !== 14) {
+            return message
+        }
+
+        if (/^(\d)\1{13}$/.test(cnpjValue)) {
+            return message
+        }
+
+        let sum = 0
+        let weight = 5
+
+        for (let i = 0; i < 12; i++) {
+            sum += Number(cnpjValue[i]) * weight
+
+            weight--
+
+            if (weight === 1) {
+                weight = 9
+            }
+        }
+
+        let digit = sum % 11
+
+        digit = digit < 2 ? 0 : 11 - digit
+
+        if (digit !== Number(cnpjValue[12])) {
+            return message
+        }
+
+        sum = 0
+        weight = 6
+
+        for (let i = 0; i < 13; i++) {
+            sum += Number(cnpjValue[i]) * weight
+
+            weight--
+
+            if (weight === 1) {
+                weight = 9
+            }
+        }
+
+        digit = sum % 11
+
+        digit = digit < 2 ? 0 : 11 - digit
+
+        if (digit !== Number(cnpjValue[13])) {
+            return message
+        }
+
+        return true
+    }
+}
