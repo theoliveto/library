@@ -96,7 +96,7 @@
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
-                                            :rules="[required()]"
+                                            :rules="[required(), textOnly(), maxLength(50)]"
                                         >
                                             <template #label>
                                                 País <span class="text-error">*</span>
@@ -111,7 +111,7 @@
                                         variant="outlined"
                                         persistent-placeholder
                                         clearable
-                                        :rules="[required(), textOnly()]"
+                                        :rules="[required(), textOnly(), maxLength(20)]"
                                     >
                                         <template #label>
                                             Gênero <span class="text-error">*</span>
@@ -126,6 +126,7 @@
                                             persistent-placeholder
                                             clearable
                                             label="Site Oficial"
+                                            :rules="[maxLength(100)]"
                                         />
                                     </v-col>
                                     
@@ -139,7 +140,7 @@
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
-                                            :rules="[maxLength(1000)]"
+                                            :rules="[maxLength(500)]"
                                         />
                                     </v-col>
                                 </v-row>
@@ -157,7 +158,7 @@
 <script lang="ts">
     import { defineComponent } from 'vue'
     import { modelService, type ModelDto, type ModelCreateDto } from '../../services/Autor/service.ts'
-    import { decimal, integer, maxLength, minLength, numeric, required, textOnly } from '@/utils/validators.ts'
+    import { maxLength, required, textOnly } from '@/utils/validators.ts'
     import { paraIso, paraDate, paraDataBR } from '@/utils/dateConverter'
     import { useSnackbar } from '@/utils/useSnackbar'
 
@@ -187,11 +188,7 @@
             const { success, error, warning, info } = useSnackbar()
 
             return {
-                decimal,
-                integer,
                 maxLength,
-                minLength,
-                numeric,
                 required,
                 textOnly,
                 success,

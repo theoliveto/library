@@ -4,15 +4,18 @@ export interface ModelDto {
     cdLivro: number
     dsLivro: string
     dsSubtitulo: string | null
-    cdAutor: number
-    cdEditora: number
-    dsIsbn10: string
-    dsIsbn13: string
+    cdAutor: number | null
+    dsAutor: string | null
+    cdEditora: number | null
+    dsEditora: string | null
+    nrIsbn10: string
+    nrIsbn13: string
     dsIdioma: string
     nrEdicao: string | null
     nrPaginas: string 
     dtPublicacao: string
-    cdCategoria: number
+    cdCategoria: number | null
+    dsCategoria: string | null
     dsSinopse: string | null
     imLivro: string | null
     dsObservacoes: string | null

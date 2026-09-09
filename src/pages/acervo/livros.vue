@@ -5,15 +5,28 @@
         <v-main>
             <v-container fluid class="mt-5">
                 <TableComponent
-                    title="Livros"
-                    icon="mdi-book"
-                    item-key="cdLivro"
+                    :title="tableMeta.title"
+                    :icon="tableMeta.icon"
+                    :item-key="tableMeta.itemKey"
                     :headers="headers"
-                    :items="livros"
-                    @add="inserir"
+                    :items="registros"
+                    @add="adicionar"
                     @edit="editar"
                     @delete="deletar"
                     @reset="reiniciar"
+                />
+
+                <MessageComponent 
+                    v-model="messageDialog"
+                    title="Excluir categoria"
+                    icon-title="mdi-help-box-multiple-outline"
+                    message="Tem certeza que deseja excluir este registro? Essa ação não poderá ser desfeita."
+                    confirm-text="Excluir"
+                    confirm-color="error"
+                    cancel-text="Cancelar"
+                    cancel-color="grey"
+                    @confirm="confirmarExclusao"
+                    @cancel="cancelarExclusao"
                 />
             </v-container>
 
@@ -51,12 +64,9 @@
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
-                                            :rules="[required(), maxLength(150)]"
-                                        >
-                                            <template #label>
-                                                Sub-Título <span class="text-error">*</span>
-                                            </template>
-                                        </v-text-field>
+                                            :rules="[maxLength(150)]"
+                                            label="Sub-Título"
+                                        />
                                     </v-col>
 
                                     <v-col cols="12" md="6">
@@ -137,17 +147,6 @@
                                     </v-col>
 
                                     <v-col cols="12" md="6">
-                                        <v-text-field
-                                            class="mt-n2"
-                                            label="País de Publicação"
-                                            v-model="formModel.dsPaisPublicacao"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                        />
-                                    </v-col>
-
-                                    <v-col cols="12" md="6">
                                         <v-date-input
                                             class="mt-n2"
                                             v-model="formModel.dtPublicacao"
@@ -156,7 +155,6 @@
                                             persistent-placeholder
                                             clearable
                                             :rules="[required()]"
-                                            @update:model-value="value => formModel.dtPublicacao = dateMask(value)"
                                         >
                                             <template #label>
                                                 Dt. Publicação <span class="text-error">*</span>
@@ -189,30 +187,15 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            label="Volume"
-                                            v-model="formModel.nrVolume"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                        />
-                                    </v-col>
-                                </v-row>
-                            </template>
-                        </v-sheet>
-                    </v-tabs-window-item>
-
-                    <v-tabs-window-item value="vinculos">
-                        <v-sheet class="pa-4">
-                            <template #default>
-                                <v-row class="mt-3">
-                                    <v-col cols="12" md="6">
-                                        <v-text-field
-                                            class="mt-n2"
                                             v-model="formModel.cdAutor"
                                             prepend-inner-icon="mdi-magnify"
                                             variant="outlined"
                                             persistent-placeholder
+                                            readonly
                                             clearable
+                                            :rules="[required()]"
+                                            @click="dialogAutor = true"
+                                            @click:clear="limparAutor"
                                         >
                                             <template #label>
                                                 Autor <span class="text-error">*</span>
@@ -227,8 +210,11 @@
                                             prepend-inner-icon="mdi-magnify"
                                             variant="outlined"
                                             persistent-placeholder
+                                            readonly
                                             clearable
                                             :rules="[required()]"
+                                            @click="dialogCategoria = true"
+                                            @click:clear="limparCategoria"
                                         >
                                             <template #label>
                                                 Categoria <span class="text-error">*</span>
@@ -243,8 +229,11 @@
                                             prepend-inner-icon="mdi-magnify"
                                             variant="outlined"
                                             persistent-placeholder
+                                            readonly
                                             clearable
                                             :rules="[required()]"
+                                            @click="dialogEditora = true"
+                                            @click:clear="limparEditora"
                                         >
                                             <template #label>
                                                 Editora <span class="text-error">*</span>
@@ -259,47 +248,114 @@
             </DialogComponent>
         </v-main>
 
+        <SelectorComponent
+            v-model="dialogCategoria"
+            title="Selecione uma Categoria"
+            :items="categorias"
+            item-value="cdCategoria"
+            item-title="dsCategoria"
+            @select="selecionarCategoria"
+        />
+
+        <SelectorComponent
+            v-model="dialogEditora"
+            title="Selecione uma Editora"
+            :items="editoras"
+            item-value="cdEditora"
+            item-title="dsEditora"
+            @select="selecionarEditora"
+        />
+
+        <SelectorComponent
+            v-model="dialogAutor"
+            title="Selecione um Autor"
+            :items="autores"
+            item-value="cdAutor"
+            item-title="dsAutor"
+            @select="selecionarAutor"
+        />
+
         <FooterComponent />
     </v-app>
 </template>
 
 <script lang="ts">
     import { defineComponent } from 'vue'
-    import { api } from '@/services/api'
-    import { dateMask, numberMask, onlyNumbers } from '@/utils/masks.ts'
+    import { modelService, type ModelDto, type ModelCreateDto } from '../../services/Livros/service.ts'
+    import { numberMask, onlyNumbers } from '@/utils/masks.ts'
+    import { paraIso, paraDate, paraDataBR } from '@/utils/dateConverter'
     import { decimal, integer, maxLength, minLength, numeric, required, textOnly } from '@/utils/validators.ts'
+    import { useSnackbar } from '@/utils/useSnackbar'
+
     import FooterComponent from '@/components/FooterComponent.vue'
     import HeaderComponent from '@/components/HeaderComponent.vue'
     import TableComponent, { type TableHeader } from '@/components/TableComponent.vue'
     import DialogComponent, { type TabItem } from '@/components/DialogComponent.vue'
+    import SelectorComponent from '@/components/SelectorComponent.vue'
+    import MessageComponent from '@/components/MessageComponent.vue'
 
-    interface Livro {
-        cdLivro?: number
-        dsLivro: string
-        dsSubtitulo: string
-        cdAutor: Number
-        nrIsbn10: string
-        nrIsbn13: string
-        cdCategoria: number
-        dsSinopse: string
-        dsIdioma: string
-        dsPaisPublicacao: string
-        dtPublicacao: string
-        nrPaginas: string
-        cdExemplar: number
-        cdEditora: number
-        nrEdicao: string
-        nrVolume: string
-        dsObservacoes: string
-        xAtivo: boolean
-    }
+    type FormModel = Omit<ModelDto, 'dtPublicacao'> & { dtPublicacao: Date | null  }
 
     export default defineComponent ({
         name: 'LivrosPage',
 
-        mounted() {
-            this.reiniciar()
-            document.title = this.$route.meta.title as string
+        data() {
+            return {
+                search: '',
+
+                registros: [] as ModelDto[],
+
+                formModel: {
+                    dsLivro: '',
+                    dsSubtitulo: '',
+                    cdAutor: null,
+                    cdEditora: null,
+                    nrIsbn10: '',
+                    nrIsbn13: '',
+                    dsIdioma: '',
+                    nrEdicao: '',
+                    nrPaginas: '',
+                    dtPublicacao: null,
+                    cdCategoria: null,
+                    dsSinopse: '',
+                    imLivro: '',
+                    dsObservacoes: '',
+                    xAtivo: true,
+                } as FormModel,
+
+                dialog: false,
+
+                headers: [
+                    { title: 'ID', key: 'cdLivro' },
+                    { title: 'Nome', key: 'dsLivro', align: 'start' },
+                    { title: 'Edição', key: 'nrEdicao', align: 'start' },
+                    { title: 'Páginas', key: 'nrPaginas', align: 'start' },
+                    { title: 'Ações', key: 'actions', align: 'end', sortable: false },
+                ] as TableHeader[],
+
+                ativo: false,
+
+                visible: false,
+
+                currentTab: 'dados-gerais',
+
+                tabsConfig: [
+                    { title: 'Dados Gerais', value: 'dados-gerais' },
+                    { title: 'Especificações', value: 'especificacoes' },
+                ] as TabItem[],
+
+                messageDialog: false,
+                excluirRegistro: null as number | null,
+
+                dialogCategoria: false,
+                categorias: [] as { cdCategoria: number; dsCategoria: string }[],
+
+                dialogAutor: false,
+                autores: [] as { cdAutor: number; dsAutor: string }[],
+
+                dialogEditora: false,
+                editoras: [] as { cdEditora: number; dsEditora: string }[],
+            }
         },
 
         components: {
@@ -307,65 +363,27 @@
             FooterComponent,
             TableComponent,
             DialogComponent,
+            SelectorComponent,
+            MessageComponent,
         },
 
         setup() {
+            const { success, error, warning, info } = useSnackbar()
+
             return {
-                dateMask,
-                numberMask,
+                numberMask, 
                 onlyNumbers,
-                decimal,
+                decimal, 
                 integer,
                 maxLength,
-                minLength,
+                minLength, 
                 numeric,
                 required,
                 textOnly,
-            }
-        },
-
-        data() {
-            return {
-                search: '',
-                tab: 'dados-gerais',
-                currentTab: 'dados-gerais',
-                dialog: false,
-                ativo: true,
-                livros: [] as Livro[],
-
-                formModel: {
-                    dsLivro: '',
-                    dsSubtitulo: '',
-                    cdAutor: 0,
-                    nrIsbn10: '',
-                    nrIsbn13: '',
-                    cdCategoria: 0,
-                    dsSinopse: '',
-                    dsIdioma: '',
-                    dsPaisPublicacao: '',
-                    dtPublicacao: '',
-                    nrPaginas: '',
-                    cdExemplar: 0,
-                    cdEditora: 0,
-                    nrEdicao: '',
-                    nrVolume: '',
-                    dsObservacoes: '',
-                    xAtivo: false,
-                } as Livro,
-
-                tabsConfig: [
-                    { title: 'Dados Gerais', value: 'dados-gerais' }, 
-                    { title: 'Especificações', value: 'especificacoes' },
-                    { title: 'Vínculos', value: 'vinculos' },
-                ] as TabItem[],
-
-                headers: [
-                    { title: 'ID', key: 'cdLivro' },
-                    { title: 'Título', key: 'dsLivro', align: 'start' },
-                    { title: 'Dt. Publicação', key: 'dtPublicacao' },
-                    { title: 'Nr. Páginas', key: 'nrPaginas' },
-                    { title: 'Ações', key: 'actions', align: 'end', sortable: false },
-                ] as TableHeader[],
+                success,
+                error,
+                warning,
+                info,
             }
         },
 
@@ -373,117 +391,175 @@
             editando (): boolean {
                 return !!this.formModel.cdLivro
             },
+
+            tableMeta() {
+                return (this.$route.meta.table as any) || {}
+            },
+
+            registrosFormatados (): ModelDto[] {
+                return this.registros.map(registro => ({
+                    ...registro,
+                    dtPublicacao: paraDataBR(registro.dtPublicacao),
+                }))
+            },
+        },
+
+        async mounted() {
+            document.title = this.$route.meta.title as string
+            await this.carregarRegistros()
         },
 
         methods: {
-            novo(): Livro {
-                return {
-                    dsLivro: '',
-                    dsSubtitulo: '',
-                    cdAutor: 0,
-                    nrIsbn10: '',
-                    nrIsbn13: '',
-                    cdCategoria: 0,
-                    dsSinopse: '',
-                    dsIdioma: '',
-                    dsPaisPublicacao: '',
-                    dtPublicacao: '',
-                    nrPaginas: '',
-                    cdExemplar: 0,
-                    cdEditora: 0,
-                    nrEdicao: '',
-                    nrVolume: '',
-                    dsObservacoes: '',
-                    xAtivo: false,
+            async carregarRegistros (): Promise<void> {
+                try {
+                    this.registros = await modelService.obterTodos()
+                } catch (error) {
+                    console.error('Erro ao carregar registros:', error)
+                    this.error('Erro ao carregar registros.')
                 }
             },
 
-            inserir(): void {
+            novo(): FormModel  {
+                return {
+                    cdLivro: 0,
+                    dsLivro: '',
+                    dsSubtitulo: '',
+                    cdAutor: null,
+                    dsAutor: '',
+                    cdEditora: null,
+                    dsEditora: '',
+                    nrIsbn10: '',
+                    nrIsbn13: '',
+                    dsIdioma: '',
+                    nrEdicao: '',
+                    nrPaginas: '',
+                    dtPublicacao: null,
+                    cdCategoria: null,
+                    dsCategoria: '',
+                    dsSinopse: '',
+                    imLivro: '',
+                    dsObservacoes: '',
+                    xAtivo: true,
+                }
+            },
+
+            adicionar(): void {
                 this.formModel = this.novo()
                 this.dialog = true
             },
 
             editar(id: number): void {
-                const found = this.livros.find(livro => livro.cdLivro === id)
-
-                if (!found) {
-                    return
+                const found = this.registros.find(r => r.cdLivro === id)
+                if (!found) return
+                this.formModel = { 
+                    ...found, 
+                    dtPublicacao: paraDate(found.dtPublicacao), 
                 }
-
-                this.formModel = { ...found }
                 this.dialog = true
             },
 
             deletar(id: number): void {
-                const index = this.livros.findIndex(livro => livro.cdLivro === id)
+                this.excluirRegistro = id
+                this.messageDialog = true
+            },
 
-                if (index !== -1) {
-                    this.livros.splice(index, 1)
+            async confirmarExclusao(): Promise<void> {
+                if (this.excluirRegistro === null) return
+
+                try {
+                    await modelService.excluir(this.excluirRegistro)
+                    await this.carregarRegistros()
+                    this.success('Registro excluído com sucesso.')
+                } catch (error) {
+                    console.error('Erro ao excluir registro:', error)
+                    this.error('Erro ao excluir registro.')
+                } finally {
+                    this.excluirRegistro = null
+                }
+            },
+
+            cancelarExclusao(): void {
+                this.excluirRegistro = null
+            },
+
+            montarPayload(): ModelCreateDto {
+                return {
+                    dsLivro: this.formModel.dsLivro,
+                    dsSubtitulo: this.formModel.dsSubtitulo,
+                    cdAutor: this.formModel.cdAutor,
+                    dsAutor: this.formModel.dsAutor,
+                    cdEditora: this.formModel.cdEditora,
+                    dsEditora: this.formModel.dsEditora,
+                    nrIsbn10: this.formModel.nrIsbn10,
+                    nrIsbn13: this.formModel.nrIsbn13,
+                    dsIdioma: this.formModel.dsIdioma,
+                    nrEdicao: this.formModel.nrEdicao,
+                    nrPaginas: this.formModel.nrPaginas,
+                    dtPublicacao: paraIso(this.formModel.dtPublicacao as Date),
+                    cdCategoria: this.formModel.cdCategoria,
+                    dsCategoria: this.formModel.dsCategoria,
+                    dsSinopse: this.formModel.dsSinopse,
+                    imLivro: this.formModel.imLivro || null,
+                    dsObservacoes: this.formModel.dsObservacoes || null,
+                    xAtivo: this.formModel.xAtivo,
                 }
             },
 
             async salvar(): Promise<void> {
-                if (this.editando) {
-                    return
-                }
-
                 try {
-                    const request = {
-                        DS_LIVRO: this.formModel.dsLivro,
-                        DS_SUBTITULO: this.formModel.dsSubtitulo,
-                        CD_AUTOR: this.formModel.cdAutor,
-                        NR_ISBN_10: this.formModel.nrIsbn10,
-                        NR_ISBN_13: this.formModel.nrIsbn13,
-                        CD_CATEGORIA: this.formModel.cdCategoria,
-                        DS_SINOPSE: this.formModel.dsSinopse,
-                        DS_IDIOMA: this.formModel.dsIdioma,
-                        DS_PAIS_PUBLICACAO: this.formModel.dsPaisPublicacao,
-                        DT_PUBLICACAO: this.formModel.dtPublicacao,
-                        NR_PAGINAS: this.formModel.nrPaginas,
-                        CD_EXEMPLAR: this.formModel.cdExemplar,
-                        CD_EDITORA: this.formModel.cdEditora,
-                        NR_EDICAO: this.formModel.nrEdicao,
-                        NR_VOLUME: this.formModel.nrVolume,
-                        DS_OBSERVACOES: this.formModel.dsObservacoes || null,
-                        X_ATIVO: this.formModel.xAtivo,
+                    const payload = this.montarPayload()
+
+                    if (this.editando) {
+                        await modelService.atualizar(this.formModel.cdLivro, payload)
+                        this.success('Registro atualizado com sucesso.')
+                    } else {
+                        await modelService.criar(payload)
+                        this.success('Registro salvo com sucesso.')
                     }
-
-                    const response = await api.post('/livros', request)
-
-                    this.livros.push(response.data)
 
                     this.dialog = false
                     this.formModel = this.novo()
+                    await this.carregarRegistros()
                 } catch (error) {
-                    console.error('Erro ao cadastrar livro:', error)
+                    console.error('Erro ao salvar registro:', error)
+                    this.error('Erro ao salvar registro.')
                 }
             },
 
             reiniciar(): void {
                 this.dialog = false
                 this.formModel = this.novo()
-                this.livros = [
-                    {
-                        dsLivro: '',
-                        dsSubtitulo: '',
-                        cdAutor: 0,
-                        nrIsbn10: '',
-                        nrIsbn13: '',
-                        cdCategoria: 0,
-                        dsSinopse: '',
-                        dsIdioma: '',
-                        dsPaisPublicacao: '',
-                        dtPublicacao: '',
-                        nrPaginas: '',
-                        cdExemplar: 0,
-                        cdEditora: 0,
-                        nrEdicao: '',
-                        nrVolume: '',
-                        dsObservacoes: '',
-                        xAtivo: false,
-                    },
-                ]
             },
+
+            selecionarCategoria(item: { cdCategoria: number; dsCategoria: string }) {
+                this.formModel.cdCategoria = item.cdCategoria;
+                this.formModel.dsCategoria = item.dsCategoria;
+            },
+
+            limparCategoria() {
+                this.formModel.cdCategoria = 0;
+                this.formModel.dsCategoria = '';
+            },
+
+            selecionarAutor(item: { cdAutor: number; dsAutor: string }) {
+                this.formModel.cdAutor = item.cdAutor;
+                this.formModel.dsAutor = item.dsAutor;
+            },
+
+            limparAutor() {
+                this.formModel.cdAutor = 0;
+                this.formModel.dsAutor = '';
+            },
+
+            selecionarEditora(item: { cdEditora: number; dsEditora: string }) {
+                this.formModel.cdEditora = item.cdEditora;
+                this.formModel.dsEditora = item.dsEditora;
+            },
+
+            limparEditora() {
+                this.formModel.cdEditora = 0;
+                this.formModel.dsEditora = '';
+            }
         },
     })
 </script>
