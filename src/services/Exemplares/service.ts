@@ -4,9 +4,8 @@ export interface ModelDto {
     cdExemplar: number
     cdLivro: number
     nrPatrimonio: string
-    dsLocalizacao: string
+    dsLocalizacao: string | null
     nrEan: string
-    dsEstadoConservacao: string
     dtAquisicao: string | null
     vlAquisicao: number | null
     dsStatus: string 
