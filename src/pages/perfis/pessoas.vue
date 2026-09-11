@@ -5,11 +5,11 @@
         <v-main>
             <v-container fluid class="mt-5">
                 <TableComponent
-                    title="Pessoas"
-                    icon="mdi-account-group-outline"
-                    item-key="cdPessoa"
+                    :title="tableMeta.title"
+                    :icon="tableMeta.icon"
+                    :item-key="tableMeta.itemKey"
                     :headers="headers"
-                    :items="pessoasFormatadas"
+                    :items="registros"
                     @add="adicionar"
                     @edit="editar"
                     @delete="deletar"
@@ -32,7 +32,7 @@
 
             <DialogComponent
                 v-model="dialog"
-                v-model:active-switch="formModel.xAtivo"
+                v-model:active-switch="formModel.ativo"
                 v-model:tab-model="currentTab"
                 :tabs="tabsConfig"
                 :title="`${editando ? 'Editando' : 'Inserindo'} uma pessoa`"
@@ -46,7 +46,7 @@
                                 <v-row class="mt-3">
                                     <v-col cols="6">
                                         <v-text-field
-                                            v-model="formModel.dsPessoa"
+                                            v-model="formModel.descricao"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -60,13 +60,42 @@
 
                                     <v-col cols="6">
                                         <v-text-field
-                                            v-model="formModel.nrCpf"
+                                            v-model="formModel.razaoSocial"
+                                            variant="outlined"
+                                            persistent-placeholder
+                                            clearable
+                                            :rules="[required(), textOnly(), maxLength(150)]"
+                                        >
+                                            <template #label>
+                                                Razão Social <span class="text-error">*</span>
+                                            </template>
+                                        </v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="6">
+                                        <SelectorField
+                                            v-model="formModel.usuarioId"
+                                            label="Usuário"
+                                            title="Selecione um Usuário"
+                                            :items="usuarios"
+                                            item-value="usuarioId"
+                                            item-title="usuario"
+                                            required
+                                            :rules="[required()]"
+                                            @select="(item: { usuario: string | null }) => formModel.usuario = item.usuario"
+                                            @clear="formModel.usuario = ''"
+                                        />
+                                    </v-col>
+
+                                    <v-col cols="6">
+                                        <v-text-field
+                                            v-model="formModel.cpfCnpj"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
                                             :rules="[required(), cpf()]"
                                             :error-messages="cpfError"
-                                            @update:model-value="value => formModel.nrCpf = cpfMask(value)"
+                                            @update:model-value="value => formModel.cpfCnpj = cpfMask(value)"
                                         >
                                             <template #label>
                                                 CPF <span class="text-error">*</span>
@@ -77,7 +106,7 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.dsEmail"
+                                            v-model="formModel.email"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -93,23 +122,36 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.nrTelefone"
+                                            v-model="formModel.celular"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
                                             :rules="[required(), phone()]"
-                                            @update:model-value="value => formModel.nrTelefone = phoneFlexibleMask(value)"
+                                            @update:model-value="value => formModel.celular = phoneFlexibleMask(value)"
                                         >
                                             <template #label>
-                                                Telefone <span class="text-error">*</span>
+                                                Celular <span class="text-error">*</span>
                                             </template>
                                         </v-text-field>
                                     </v-col>
 
                                     <v-col cols="12" md="6">
+                                        <v-text-field
+                                            class="mt-n2"
+                                            v-model="formModel.telefone"
+                                            variant="outlined"
+                                            persistent-placeholder
+                                            clearable
+                                            label="Telefone"
+                                            :rules="[phone()]"
+                                            @update:model-value="value => formModel.telefone = phoneFlexibleMask(value)"
+                                        />
+                                    </v-col>
+
+                                    <v-col cols="12" md="6">
                                         <v-date-input
                                             class="mt-n2"
-                                            v-model="formModel.dtNascimento"
+                                            v-model="formModel.nascimento"
                                             prepend-icon=""
                                             variant="outlined"
                                             clearable
@@ -127,7 +169,7 @@
                                     <v-col cols="12" md="6">
                                         <v-select
                                             class="mt-n2"
-                                            v-model="formModel.dsGenero"
+                                            v-model="formModel.genero"
                                             :items="['Masculino', 'Feminino']"
                                             variant="outlined"
                                             persistent-placeholder
@@ -143,7 +185,7 @@
                                     <v-col cols="12" md="12">
                                         <v-textarea
                                             class="mt-n2"
-                                            v-model="formModel.dsObservacoes"
+                                            v-model="formModel.observacoes"
                                             label="Observações"
                                             row-height="25"
                                             rows="3"
@@ -163,27 +205,31 @@
                             <template #default>
                                 <v-row class="mt-3">
                                     <v-col cols="12" md="4">
+                                        <CepField
+                                            v-model="formModel.cep"
+                                            @endereco-encontrado="preencherEndereco"
+                                            @endereco-nao-encontrado="limparEndereco"
+                                        />
+                                    </v-col>
+
+                                    <v-col cols="12" md="6">
                                         <v-text-field
-                                            v-model="formModel.nrCep"
-                                            :loading="loadingCep"
-                                            :error-messages="cepError"
-                                            @blur="buscarCep"
-                                            inputmode="numeric"
+                                            class="mt-n2"
+                                            v-model="formModel.endereco"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
-                                            :rules="[required(), cep()]"
-                                            @update:model-value="value => formModel.nrCep = cepMask(value)"
+                                            :rules="[required(), maxLength(200)]"
                                         >
                                             <template #label>
-                                                CEP <span class="text-error">*</span>
+                                                Endereço <span class="text-error">*</span>
                                             </template>
                                         </v-text-field>
                                     </v-col>
 
                                     <v-col cols="12" md="4">
                                         <v-text-field
-                                            v-model="formModel.dsCidade"
+                                            v-model="formModel.cidade"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -197,7 +243,7 @@
 
                                     <v-col cols="12" md="4">
                                         <v-select
-                                            v-model="formModel.dsEstado"
+                                            v-model="formModel.estado"
                                             :items="estados"
                                             variant="outlined"
                                             persistent-placeholder
@@ -213,22 +259,7 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.dsEndereco"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                            :rules="[required(), maxLength(200)]"
-                                        >
-                                            <template #label>
-                                                Endereço <span class="text-error">*</span>
-                                            </template>
-                                        </v-text-field>
-                                    </v-col>
-
-                                    <v-col cols="12" md="6">
-                                        <v-text-field
-                                            class="mt-n2"
-                                            v-model="formModel.dsBairro"
+                                            v-model="formModel.bairro"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -243,7 +274,7 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.nrNumero"
+                                            v-model="formModel.numero"
                                             label="Número"
                                             variant="outlined"
                                             persistent-placeholder
@@ -255,7 +286,7 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.dsComplemento"
+                                            v-model="formModel.complemento"
                                             label="Complemento"
                                             variant="outlined"
                                             persistent-placeholder
@@ -277,7 +308,7 @@
 
 <script lang="ts">
     import { defineComponent } from 'vue'
-    import { pessoaService, type PessoaDto, type PessoaCreateDto } from '../../services/Pessoas/service.ts'
+    import { modelService, type ModelDto, type ModelCreateDto } from '../../services/Pessoas/service.ts'
     import { paraIso, paraDate, paraDataBR } from '@/utils/dateConverter'
     import { cepMask, cpfMask, dateMask, numberMask, onlyNumbers, phoneFlexibleMask, phoneMask } from '@/utils/masks.ts'
     import { cep, cpf, decimal, email, integer, maxLength, minLength, numeric, phone, required, textOnly } from '@/utils/validators.ts'
@@ -288,8 +319,10 @@
     import TableComponent, { type TableHeader } from '@/components/TableComponent.vue'
     import DialogComponent, { type TabItem } from '@/components/DialogComponent.vue'
     import MessageComponent from '@/components/MessageComponent.vue'
+    import SelectorComponent from '@/components/SelectorComponent.vue'
+    import type { EnderecoViaCep } from '@/components/Forms/CepFieldComponent.vue'
 
-    type PessoaFormModel = Omit<PessoaDto, 'dtNascimento'> & { dtNascimento: Date | null }
+    type FormModel = Omit<ModelDto, 'nascimento'> & { nascimento: Date | null }
 
     export default defineComponent({
         name: 'PessoasPage',
@@ -299,7 +332,8 @@
             FooterComponent,
             TableComponent,
             DialogComponent,
-            MessageComponent
+            MessageComponent,
+            SelectorComponent
         },
 
         setup () {
@@ -340,44 +374,48 @@
         data () {
             return {
                 loadingCep: false,
-
                 cepError: '',
                 cpfError: '',
                 emailError: '',
-
                 search: '',
-
+                dialog: false,
+                ativo: true,
+                currentTab: 'dados-pessoais',
+                messageDialog: false,
+                excluirRegistro: null as number | null,
                 currentYear: new Date().getFullYear(),
 
-                pessoas: [] as PessoaDto[],
+                registros: [] as ModelDto[],
+                usuarios: [] as { usuarioId: number; usuario: string }[],
 
                 formModel: {
-                    dsPessoa: '',
-                    nrCpf: '',
-                    dsEmail: '',
-                    nrTelefone: '',
-                    dtNascimento: null,
-                    dsGenero: '',
-                    dsObservacoes: '',
-                    xAtivo: true,
-                    nrCep: '',
-                    dsCidade: '',
-                    dsEstado: '',
-                    dsEndereco: '',
-                    dsBairro: '',
-                    nrNumero: '',
-                    dsComplemento: '',
-                } as PessoaFormModel,
-
-                dialog: false,
+                    id: 0,
+                    descricao: '',
+                    razaoSocial: '',
+                    usuarioId: null,
+                    usuario: '',
+                    cpfCnpj: '',
+                    email: '',
+                    celular: '',
+                    telefone: '',
+                    nascimento: null,
+                    genero: '',
+                    cep: '',
+                    endereco: '',
+                    cidade: '',
+                    estado: '',
+                    bairro: '',
+                    numero: '',
+                    complemento: '',
+                    observacoes: '',
+                    ativo: true,
+                } as FormModel,
 
                 headers: [
-                    { title: 'ID', key: 'cdPessoa' },
-                    { title: 'Nome', key: 'dsPessoa', align: 'start' },
-                    { title: 'E-mail', key: 'dsEmail' },
-                    { title: 'CPF', key: 'nrCpf' },
-                    { title: 'Gênero', key: 'dsGenero', align: 'end' },
-                    { title: 'Nascimento', key: 'dtNascimento', align: 'end' },
+                    { title: 'ID', key: 'id' },
+                    { title: 'Nome', key: 'descricao', align: 'start' },
+                    { title: 'CPF', key: 'cpfCnpj' },
+                    { title: 'E-mail', key: 'email' },
                     { title: 'Ações', key: 'actions', align: 'end', sortable: false },
                 ] as TableHeader[],
 
@@ -411,66 +449,67 @@
                     'Tocantins (TO)',
                 ],
 
-                ativo: false,
-
-                currentTab: 'dados-pessoais',
-
                 tabsConfig: [
                     { title: 'Dados Pessoais', value: 'dados-pessoais' },
                     { title: 'Endereço', value: 'endereco' },
                 ] as TabItem[],
-
-                messageDialog: false,
-                excluirPessoa: null as number | null,
             }
         },
 
         computed: {
             editando (): boolean {
-                return !!this.formModel.cdPessoa
+                return !!this.formModel.id
             },
 
-            pessoasFormatadas (): PessoaDto[] {
-                return this.pessoas.map(pessoa => ({
-                    ...pessoa,
-                    dtNascimento: paraDataBR(pessoa.dtNascimento),
+            tableMeta() {
+                return (this.$route.meta.table as any) || {}
+            },
+
+            registrosFormatadas (): ModelDto[] {
+                return this.registros.map(registro => ({
+                    ...registro,
+                    nascimento: paraDataBR(registro.nascimento),
                 }))
             },
         },
 
         async mounted () {
             document.title = this.$route.meta.title as string
-            await this.carregarPessoas()
+            await this.carregarRegistros()
         },
 
         methods: {
-            async carregarPessoas (): Promise<void> {
+            async carregarRegistros (): Promise<void> {
                 try {
-                    this.pessoas = await pessoaService.obterTodos()
+                    this.registros = await modelService.obterTodos()
                 } catch (error) {
-                    console.error('Erro ao carregar pessoas:', error)
-                    this.error('Erro ao carregar Pessoas.')
+                    console.error('Erro ao carregar registros:', error)
+                    this.error('Erro ao carregar registros.')
                 }
             },
 
-            novo(): PessoaFormModel {
+            novo(): FormModel {
                 return {
-                    cdPessoa: 0,
-                    dsPessoa: '',
-                    nrCpf: '',
-                    dsEmail: '',
-                    nrTelefone: '',
-                    dtNascimento: null,
-                    dsGenero: '',
-                    dsObservacoes: '',
-                    xAtivo: true,
-                    nrCep: '',
-                    dsCidade: '',
-                    dsEstado: '',
-                    dsEndereco: '',
-                    dsBairro: '',
-                    nrNumero: '',
-                    dsComplemento: '',
+                    id: 0,
+                    descricao: '',
+                    razaoSocial: '',
+                    usuarioId: null,
+                    usuario: '',
+                    cpfCnpj: '',
+                    email: '',
+                    celular: '',
+                    telefone: '',
+                    nascimento: null,
+                    genero: '',
+                    cep: '',
+                    endereco: '',
+                    cidade: '',
+                    estado: '',
+                    bairro: '',
+                    numero: '',
+                    complemento: '',
+                    observacoes: '',
+                    ativo: true,
                 }
             },
 
@@ -480,53 +519,60 @@
             },
 
             editar(id: number): void {
-                const found = this.pessoas.find(pessoa => pessoa.cdPessoa === id)
+                const found = this.registros.find(r => r.id === id)
                 if (!found) return
-                this.formModel = { ...found, dtNascimento: paraDate(found.dtNascimento) }
+                this.formModel = { 
+                    ...found, 
+                    nascimento: paraDate(found.nascimento) 
+                }
                 this.dialog = true
             },
 
             deletar(id: number): void {
-                this.excluirPessoa = id
+                this.excluirRegistro = id
                 this.messageDialog = true
             },
 
             async confirmarExclusao(): Promise<void> {
-                if (this.excluirPessoa === null) return
+                if (this.excluirRegistro === null) return
 
                 try {
-                    await pessoaService.excluir(this.excluirPessoa)
-                    await this.carregarPessoas()
-                    this.success('Pessoa excluída com sucesso.')
+                    await modelService.excluir(this.excluirRegistro)
+                    await this.carregarRegistros()
+                    this.success('Registro excluído com sucesso.')
                 } catch (error) {
-                    console.error('Erro ao excluir pessoa:', error)
-                    this.error('Erro ao excluir Pessoa.')
+                    console.error('Erro ao excluir registro:', error)
+                    this.error('Erro ao excluir registro.')
                 } finally {
-                    this.excluirPessoa = null
+                    this.excluirRegistro = null
                 }
             },
 
             cancelarExclusao(): void {
-                this.excluirPessoa = null
+                this.excluirRegistro = null
             },
 
-            montarPayload (): PessoaCreateDto {
+            montarPayload (): ModelCreateDto {
                 return {
-                    dsPessoa: this.formModel.dsPessoa,
-                    nrCpf: this.formModel.nrCpf,
-                    dsEmail: this.formModel.dsEmail,
-                    nrTelefone: this.formModel.nrTelefone,
-                    dtNascimento: paraIso(this.formModel.dtNascimento as Date),
-                    dsGenero: this.formModel.dsGenero,
-                    dsObservacoes: this.formModel.dsObservacoes || null,
-                    xAtivo: this.formModel.xAtivo,
-                    nrCep: this.formModel.nrCep,
-                    dsCidade: this.formModel.dsCidade,
-                    dsEstado: this.formModel.dsEstado,
-                    dsEndereco: this.formModel.dsEndereco,
-                    dsBairro: this.formModel.dsBairro,
-                    nrNumero: this.formModel.nrNumero || null,
-                    dsComplemento: this.formModel.dsComplemento || null,
+                    descricao: this.formModel.descricao,
+                    razaoSocial: this.formModel.razaoSocial,
+                    usuarioId: this.formModel.usuarioId,
+                    usuario: this.formModel.usuario || null,
+                    cpfCnpj: this.formModel.cpfCnpj,
+                    email: this.formModel.email,
+                    celular: this.formModel.celular,
+                    telefone: this.formModel.telefone,
+                    nascimento: paraIso(this.formModel.nascimento as Date),
+                    genero: this.formModel.genero,
+                    cep: this.formModel.cep,
+                    endereco: this.formModel.endereco,
+                    cidade: this.formModel.cidade,
+                    estado: this.formModel.estado,
+                    bairro: this.formModel.bairro,
+                    numero: this.formModel.numero || null,
+                    complemento: this.formModel.complemento || null,
+                    observacoes: this.formModel.observacoes || null,
+                    ativo: this.formModel.ativo,
                 }
             },
 
@@ -535,19 +581,19 @@
                     const payload = this.montarPayload()
 
                     if (this.editando) {
-                        await pessoaService.atualizar(this.formModel.cdPessoa, payload)
-                        this.success('Pessoa atualizada com sucesso.')
+                        await modelService.atualizar(this.formModel.id, payload)
+                        this.success('Registro atualizado com sucesso.')
                     } else {
-                        await pessoaService.criar(payload)
-                        this.success('Pessoa salva com sucesso.')
+                        await modelService.criar(payload)
+                        this.success('Registro salvo com sucesso.')
                     }
 
                     this.dialog = false
                     this.formModel = this.novo()
-                    await this.carregarPessoas()
+                    await this.carregarRegistros()
                 } catch (error) {
-                    console.error('Erro ao salvar pessoa:', error)
-                    this.error('Erro ao salvar Pessoa.')
+                    console.error('Erro ao salvar registro:', error)
+                    this.error('Erro ao salvar registro.')
                 }
             },
 
@@ -556,69 +602,12 @@
                 this.formModel = this.novo()
             },
 
-            formatarCep (valor: string) {
-                let cepLimpo = valor.replace(/\D/g, '')
-
-                cepLimpo = cepLimpo.slice(0, 8)
-
-                if (cepLimpo.length > 5) {
-                    cepLimpo = cepLimpo.replace(/^(\d{5})(\d)/, '$1-$2')
-                }
-
-                this.formModel.nrCep = cepLimpo
-            },
-
-            buscarEstadoPorUf (uf: string) {
-                return this.estados.find(estado => estado.endsWith(`(${uf})`))
-            },
-
-            async buscarCep () {
-                const cepLimpo = this.formModel.nrCep.replace(/\D/g, '')
-
-                if (cepLimpo.length !== 8) {
-                    return
-                }
-
-                this.cepError = ''
-                this.loadingCep = true
-
-                try {
-                    const response = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`)
-                    const data = await response.json()
-
-                    if (data.erro) {
-                        this.cepError = 'CEP não encontrado'
-                        this.limparEndereco()
-                        return
-                    }
-
-                    this.formModel.dsEndereco = data.logradouro
-                    this.formModel.dsBairro = data.bairro
-                    this.formModel.dsCidade = data.localidade
-                    this.formModel.dsEstado = this.buscarEstadoPorUf(data.uf) || ''
-                    this.formModel.dsComplemento = data.complemento
-                } catch (error) {
-                    this.cepError = 'Erro ao consultar CEP'
-                    console.error(error)
-                } finally {
-                    this.loadingCep = false
-                }
-            },
-
-            limparEndereco () {
-                this.formModel.dsEndereco = ''
-                this.formModel.dsBairro = ''
-                this.formModel.dsCidade = ''
-                this.formModel.dsEstado = ''
-                this.formModel.dsComplemento = ''
-            },
-
             alterarCpf(value: string) {
-                this.formModel.nrCpf = cpfMask(value)
+                this.formModel.cpfCnpj = cpfMask(value)
 
                 this.cpfError = ''
 
-                const cpfLimpo = this.formModel.nrCpf.replace(/\D/g, '')
+                const cpfLimpo = this.formModel.cpfCnpj.replace(/\D/g, '')
 
                 if (cpfLimpo.length !== 11) {
                     return
@@ -630,9 +619,9 @@
             async verificarCpf(): Promise<void> {
                 try {
 
-                    const response = await pessoaService.verificarCpf(
-                        this.formModel.nrCpf,
-                        this.formModel.cdPessoa
+                    const response = await modelService.verificarCpf(
+                        this.formModel.cpfCnpj,
+                        this.formModel.id
                     )
 
                     if (response.existe) {
@@ -646,7 +635,7 @@
             },
 
             alterarEmail(value: string) {
-                this.formModel.dsEmail = value
+                this.formModel.email = value
 
                 this.emailError = ''
 
@@ -660,9 +649,9 @@
             async verificarEmail(): Promise<void> {
                 try {
 
-                    const response = await pessoaService.verificarEmail(
-                        this.formModel.dsEmail,
-                        this.formModel.cdPessoa
+                    const response = await modelService.verificarEmail(
+                        this.formModel.email,
+                        this.formModel.id
                     )
 
                     if (response.existe) {
@@ -674,6 +663,26 @@
                     console.error('Erro ao verificar e-mail:', error)
 
                 }
+            },
+
+            preencherEndereco (endereco: EnderecoViaCep) {
+                this.formModel.endereco = endereco.logradouro
+                this.formModel.bairro = endereco.bairro
+                this.formModel.cidade = endereco.localidade
+                this.formModel.estado = this.buscarEstadoPorUf(endereco.uf) || ''
+                this.formModel.complemento = endereco.complemento
+            },
+
+            buscarEstadoPorUf (uf: string) {
+                return this.estados.find(estado => estado.endsWith(`(${uf})`))
+            },
+
+            limparEndereco () {
+                this.formModel.endereco = ''
+                this.formModel.bairro = ''
+                this.formModel.cidade = ''
+                this.formModel.estado = ''
+                this.formModel.complemento = ''
             },
         },
     })

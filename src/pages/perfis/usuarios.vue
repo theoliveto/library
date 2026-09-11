@@ -32,7 +32,7 @@
 
             <DialogComponent
                 v-model="dialog"
-                v-model:active-switch="formModel.xAtivo"
+                v-model:active-switch="formModel.ativo"
                 v-model:tab-model="currentTab"
                 :tabs="tabsConfig"
                 :title="`${editando ? 'Editando' : 'Inserindo'} um usuário`"
@@ -46,7 +46,7 @@
                                 <v-row class="mt-3">
                                     <v-col cols="6">
                                         <v-text-field
-                                            v-model="formModel.dsUsuario"
+                                            v-model="formModel.descricao"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -60,7 +60,7 @@
 
                                     <v-col cols="6">
                                         <v-text-field
-                                            v-model="formModel.dsLogin"
+                                            v-model="formModel.login"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -75,7 +75,7 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.dsEmail"
+                                            v-model="formModel.email"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -90,7 +90,7 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.dsSenha"
+                                            v-model="formModel.senha"
                                             :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye'"
                                             :type="visible ? 'text' : 'password'"
                                             label="Senha"
@@ -104,11 +104,27 @@
                                             </template>
                                         </v-text-field>
                                     </v-col>
+
+                                    <v-col cols="6">
+                                        <v-select
+                                            class="mt-n2"
+                                            v-model="formModel.perfil"
+                                            :items="perfis"
+                                            variant="outlined"
+                                            persistent-placeholder
+                                            clearable
+                                            :rules="[required(), textOnly(), maxLength(50)]"
+                                        >
+                                            <template #label>
+                                                Perfis <span class="text-error">*</span>
+                                            </template>
+                                        </v-select>
+                                    </v-col>
                                     
                                     <v-col cols="12" md="12">
                                         <v-textarea
                                             class="mt-n2"
-                                            v-model="formModel.dsObservacoes"
+                                            v-model="formModel.observacoes"
                                             label="Observações"
                                             row-height="25"
                                             rows="3"
@@ -121,7 +137,7 @@
 
                                     <v-col cols="12" md="6">
                                         <v-checkbox
-                                            v-model="formModel.xAdministrador"
+                                            v-model="formModel.administrador"
                                             label="Administrador"
                                             density="compact"
                                             color="primary"
@@ -185,47 +201,52 @@
             return {
                 emailError: '',
                 search: '',
-
+                currentTab: 'dados-gerais',
+                dialog: false,
+                ativo: true,
+                visible: false,
+                messageDialog: false,
+                excluirRegistro: null as number | null,
+            
                 registros: [] as ModelDto[],
 
                 formModel: {
-                    dsUsuario: '',
-                    dsLogin: '',
-                    dsEmail: '',
-                    dsSenha: '',
-                    dsObservacoes: '',
-                    xAtivo: true,
-                    xAdministrador: false,
+                    id: 0,
+                    descricao: '',
+                    login: '',
+                    email: '',
+                    senha: '',
+                    perfil: '',
+                    avatar: '',
+                    administrador: false,
+                    observacoes: '',
+                    ativo: true,
                 } as ModelDto,
 
-                dialog: false,
-
                 headers: [
-                    { title: 'ID', key: 'cdUsuario' },
-                    { title: 'Nome', key: 'dsUsuario', align: 'start' },
-                    { title: 'E-mail', key: 'dsEmail' },
-                    { title: 'Login', key: 'dsLogin' },
+                    { title: 'ID', key: 'id' },
+                    { title: 'Nome', key: 'descricao', align: 'start' },
+                    { title: 'E-mail', key: 'email' },
+                    { title: 'Login', key: 'login' },
                     { title: 'Ações', key: 'actions', align: 'end', sortable: false },
                 ] as TableHeader[],
-
-                ativo: false,
-
-                visible: false,
-
-                currentTab: 'dados-gerais',
 
                 tabsConfig: [
                     { title: 'Dados Gerais', value: 'dados-gerais' },
                 ] as TabItem[],
 
-                messageDialog: false,
-                excluirRegistro: null as number | null,
+                perfis: [
+                    'Master',
+                    'Gestor',
+                    'Padrão',
+                    'Leitura'
+                ]
             }
         },
 
         computed: {
             editando (): boolean {
-                return !!this.formModel.cdUsuario
+                return !!this.formModel.id
             },
 
             tableMeta() {
@@ -250,15 +271,16 @@
 
             novo(): ModelDto {
                 return {
-                    cdUsuario: 0,
-                    dsUsuario: '',
-                    dsLogin: '',
-                    dsEmail: '',
-                    dsSenha: '',
-                    dsObservacoes: '',
-                    xAtivo: true,
-                    xAdministrador: false,
-                    imPerfil: null,
+                    id: 0,
+                    descricao: '',
+                    login: '',
+                    email: '',
+                    senha: '',
+                    perfil: '',
+                    avatar: '',
+                    administrador: false,
+                    observacoes: '',
+                    ativo: true,
                 }
             },
 
@@ -268,7 +290,7 @@
             },
 
             editar(id: number): void {
-                const found = this.registros.find(r => r.cdUsuario === id)
+                const found = this.registros.find(r => r.id === id)
                 if (!found) return
                 this.formModel = { ...found }
                 this.dialog = true
@@ -300,14 +322,15 @@
 
             montarPayload(): ModelCreateDto {
                 return {
-                    dsUsuario: this.formModel.dsUsuario,
-                    dsLogin: this.formModel.dsLogin,
-                    dsEmail: this.formModel.dsEmail,
-                    dsSenha: this.formModel.dsSenha,
-                    dsObservacoes: this.formModel.dsObservacoes || null,
-                    xAtivo: this.formModel.xAtivo,
-                    xAdministrador: this.formModel.xAdministrador,
-                    imPerfil: this.formModel.imPerfil || null,
+                    descricao: this.formModel.descricao,
+                    login: this.formModel.login,
+                    email: this.formModel.email,
+                    senha: this.formModel.senha,
+                    perfil: this.formModel.perfil,
+                    avatar: this.formModel.avatar || null,
+                    administrador: this.formModel.administrador,
+                    observacoes: this.formModel.observacoes || null,
+                    ativo: this.formModel.ativo,
                 }
             },
 
@@ -316,7 +339,7 @@
                     const payload = this.montarPayload()
 
                     if (this.editando) {
-                        await modelService.atualizar(this.formModel.cdUsuario, payload)
+                        await modelService.atualizar(this.formModel.id, payload)
                         this.success('Registro atualizado com sucesso.')
                     } else {
                         await modelService.criar(payload)

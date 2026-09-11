@@ -2,8 +2,10 @@ import { api } from '../api'
 
 export interface ModelDto {
     id: number
-    pessoaId: number
-    emprestimoId: number
+    pessoaId: number | null
+    pessoa: string | null
+    emprestimoId: number | null
+    emprestimo: string | null
     motivo: string
     valor: number
     data: string

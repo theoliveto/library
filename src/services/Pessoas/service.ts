@@ -4,7 +4,8 @@ export interface ModelDto {
     id: number
     descricao: string
     razaoSocial: string
-    usuarioId: number
+    usuarioId: number | null
+    usuario: string | null
     cpfCnpj: string
     email: string
     celular: string

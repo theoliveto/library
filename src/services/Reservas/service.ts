@@ -2,8 +2,10 @@ import { api } from '../api'
 
 export interface ModelDto {
     id: number
-    pessoaId: number
-    exemplarId: number
+    pessoaId: number | null
+    pessoa: string | null
+    exemplarId: number | null
+    exemplar: string | null
     reserva: string
     prazo: string
     validade: string
