@@ -72,7 +72,7 @@ const router = createRouter({
         table: {
           title: 'Autores',
           icon: 'mdi-fountain-pen-tip',
-          itemKey: 'cdAutor'
+          itemKey: 'id'
         }
       },
     },
@@ -90,7 +90,7 @@ const router = createRouter({
         table: {
           title: 'Categorias',
           icon: 'mdi-content-duplicate',
-          itemKey: 'cdCategoria'
+          itemKey: 'id'
         }
       },
     },
@@ -108,7 +108,7 @@ const router = createRouter({
         table: {
           title: 'Editoras',
           icon: 'mdi-newspaper-variant-outline',
-          itemKey: 'cdEditor'
+          itemKey: 'id'
         }
       },
     },
@@ -126,7 +126,7 @@ const router = createRouter({
         table: {
           title: 'Exemplares',
           icon: 'mdi-book-multiple-outline',
-          itemKey: 'cdExemplar'
+          itemKey: 'id'
         }
       },
     },
@@ -144,7 +144,7 @@ const router = createRouter({
         table: {
           title: 'Livros',
           icon: 'mdi-book',
-          itemKey: 'cdLivro'
+          itemKey: 'id'
         }
       },
     },
@@ -162,7 +162,7 @@ const router = createRouter({
         table: {
           title: 'Devoluções',
           icon: 'mdi-arrow-u-left-top-bold',
-          itemKey: 'cdDevolucao'
+          itemKey: 'id'
         }
       },
     },
@@ -180,7 +180,7 @@ const router = createRouter({
         table: {
           title: 'Empréstimos',
           icon: 'mdi-arrow-u-right-top-bold',
-          itemKey: 'cdEmprestimo'
+          itemKey: 'id'
         }
       },
     },
@@ -196,9 +196,9 @@ const router = createRouter({
           { title: 'Reservas', disabled: true },
         ],
         table: {
-          title: 'Empréstimos',
-          icon: 'mdi-arrow-u-right-top-bold',
-          itemKey: 'cdEmprestimo'
+          title: 'Reservas',
+          icon: 'mdi-bookmark-check-outline',
+          itemKey: 'id'
         }
       },
     },
@@ -216,7 +216,7 @@ const router = createRouter({
         table: {
           title: 'Atrasados',
           icon: 'mdi-clock-alert-outline',
-          itemKey: 'cdAtraso'
+          itemKey: 'id'
         }
       },
     },
@@ -234,7 +234,7 @@ const router = createRouter({
         table: {
           title: 'Histórico',
           icon: 'mdi-history',
-          itemKey: 'cdHistorico'
+          itemKey: 'id'
         }
       },
     },
@@ -252,7 +252,7 @@ const router = createRouter({
         table: {
           title: 'Multas',
           icon: 'mdi-cash-minus',
-          itemKey: 'cdMulta'
+          itemKey: 'id'
         }
       },
     },
@@ -270,7 +270,7 @@ const router = createRouter({
         table: {
           title: 'Pessoas',
           icon: 'mdi-account-group-outline',
-          itemKey: 'cdPessoa'
+          itemKey: 'id'
         }
       },
     },
@@ -288,7 +288,7 @@ const router = createRouter({
         table: {
           title: 'Usuários',
           icon: 'mdi-account-edit-outline',
-          itemKey: 'cdUsuario'
+          itemKey: 'id'
         }
       },
     },

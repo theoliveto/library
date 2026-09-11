@@ -54,7 +54,7 @@ export const authService = {
         const usuario = response.data
     
         return {
-            id: usuario.cD_USUARIO,
+            id: usuario.id,
             descricao: usuario.descricao,
             login: usuario.login,
             email: usuario.email,

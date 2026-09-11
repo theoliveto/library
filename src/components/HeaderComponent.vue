@@ -113,12 +113,12 @@
                 <v-list-item v-bind="props" class="usuario-sidebar">
                     <template #prepend>
                         <v-avatar color="primary" size="38">
-                            <span class="text-white">{{ authStore.usuario?.dsUsuario?.charAt(0).toUpperCase() }}</span>
+                            <span class="text-white">{{ authStore.usuario?.descricao?.charAt(0).toUpperCase() }}</span>
                         </v-avatar>
                     </template>
 
-                    <v-list-item-title>{{ authStore.usuario?.dsUsuario }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ authStore.usuario?.xAdministrador ? 'Administrador' : 'Usuário' }}</v-list-item-subtitle>
+                    <v-list-item-title>{{ authStore.usuario?.descricao }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ authStore.usuario?.perfil }}</v-list-item-subtitle>
 
                     <template #append>
                         <v-icon size="18" icon="mdi-chevron-up" />

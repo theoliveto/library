@@ -73,7 +73,7 @@
                                     </v-col>
 
                                     <v-col cols="6">
-                                        <SelectorField
+                                        <SelectorFieldComponent
                                             v-model="formModel.usuarioId"
                                             label="Usuário"
                                             title="Selecione um Usuário"
@@ -170,7 +170,7 @@
                                         <v-select
                                             class="mt-n2"
                                             v-model="formModel.genero"
-                                            :items="['Masculino', 'Feminino']"
+                                            :items="['Masculino', 'Feminino', 'Não se aplica']"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -181,20 +181,6 @@
                                             </template>
                                         </v-select>
                                     </v-col>
-
-                                    <v-col cols="12" md="12">
-                                        <v-textarea
-                                            class="mt-n2"
-                                            v-model="formModel.observacoes"
-                                            label="Observações"
-                                            row-height="25"
-                                            rows="3"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                            :rules="[maxLength(500)]"
-                                        />
-                                    </v-col>
                                 </v-row>
                             </template>
                         </v-sheet>
@@ -204,8 +190,8 @@
                         <v-sheet class="pa-4">
                             <template #default>
                                 <v-row class="mt-3">
-                                    <v-col cols="12" md="4">
-                                        <CepField
+                                    <v-col cols="12" md="6">
+                                        <CepFieldComponent
                                             v-model="formModel.cep"
                                             @endereco-encontrado="preencherEndereco"
                                             @endereco-nao-encontrado="limparEndereco"
@@ -214,7 +200,6 @@
 
                                     <v-col cols="12" md="6">
                                         <v-text-field
-                                            class="mt-n2"
                                             v-model="formModel.endereco"
                                             variant="outlined"
                                             persistent-placeholder
@@ -227,7 +212,7 @@
                                         </v-text-field>
                                     </v-col>
 
-                                    <v-col cols="12" md="4">
+                                    <v-col cols="12" md="6">
                                         <v-text-field
                                             v-model="formModel.cidade"
                                             variant="outlined"
@@ -241,7 +226,7 @@
                                         </v-text-field>
                                     </v-col>
 
-                                    <v-col cols="12" md="4">
+                                    <v-col cols="12" md="6">
                                         <v-select
                                             v-model="formModel.estado"
                                             :items="estados"
@@ -294,6 +279,20 @@
                                             :rules="[maxLength(100)]"
                                         />
                                     </v-col>
+
+                                    <v-col cols="12" md="12">
+                                        <v-textarea
+                                            class="mt-n2"
+                                            v-model="formModel.observacoes"
+                                            label="Observações"
+                                            row-height="25"
+                                            rows="3"
+                                            variant="outlined"
+                                            persistent-placeholder
+                                            clearable
+                                            :rules="[maxLength(500)]"
+                                        />
+                                    </v-col>
                                 </v-row>
                             </template>
                         </v-sheet>
@@ -319,7 +318,8 @@
     import TableComponent, { type TableHeader } from '@/components/TableComponent.vue'
     import DialogComponent, { type TabItem } from '@/components/DialogComponent.vue'
     import MessageComponent from '@/components/MessageComponent.vue'
-    import SelectorComponent from '@/components/SelectorComponent.vue'
+    import SelectorFieldComponent from '@/components/Forms/SelectorFieldComponent.vue'
+    import CepFieldComponent from '@/components/Forms/CepFieldComponent.vue'
     import type { EnderecoViaCep } from '@/components/Forms/CepFieldComponent.vue'
 
     type FormModel = Omit<ModelDto, 'nascimento'> & { nascimento: Date | null }
@@ -333,16 +333,12 @@
             TableComponent,
             DialogComponent,
             MessageComponent,
-            SelectorComponent
+            SelectorFieldComponent,
+            CepFieldComponent
         },
 
         setup () {
-            const {
-                success,
-                error,
-                warning,
-                info
-            } = useSnackbar()
+            const { success, error, warning, info } = useSnackbar()
 
             return {
                 cepMask,
@@ -373,17 +369,13 @@
 
         data () {
             return {
-                loadingCep: false,
-                cepError: '',
                 cpfError: '',
                 emailError: '',
-                search: '',
                 dialog: false,
                 ativo: true,
                 currentTab: 'dados-pessoais',
                 messageDialog: false,
                 excluirRegistro: null as number | null,
-                currentYear: new Date().getFullYear(),
 
                 registros: [] as ModelDto[],
                 usuarios: [] as { usuarioId: number; usuario: string }[],

@@ -1,7 +1,7 @@
 <template>
     <v-dialog :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" max-width="600">
         <v-card>
-            <v-card-title>{{ title }}</v-card-title>
+            <v-card-title class="selector-header" color="blue-lighten-2" bg-color="blue-grey-darken-4">{{ title }}</v-card-title>
 
             <v-card-text>
                 <v-text-field
@@ -9,8 +9,8 @@
                     v-model="busca"
                     prepend-inner-icon="mdi-magnify"
                     variant="outlined"
-                    density="compact"
-                    placeholder="Buscar..."
+                    label="Busca"
+                    persistent-placeholder
                     clearable
                     hide-details
                     class="mb-2"
@@ -39,7 +39,7 @@
     import { defineComponent, type PropType } from 'vue';
 
     export default defineComponent({
-        name: 'SelectorModal',
+        name: 'SelectorComponent',
 
         props: {
             modelValue: { type: Boolean, required: true },
@@ -77,3 +77,12 @@
         }
     });
 </script>
+
+<style scoped>
+    .selector-header {
+        background-color: #263238;
+        color: #f1f1f1;
+        padding: 16px 24px;
+        letter-spacing: -0.8px;
+    }
+</style>

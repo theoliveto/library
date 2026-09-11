@@ -36,7 +36,7 @@ export default defineComponent({
     components: { SelectorModal },
 
     props: {
-        modelValue: { type: [Number, String] as PropType<number | string>, default: null },
+        modelValue: { type: [Number, String] as PropType<number | string | null>, default: null },
         label: { type: String, required: true },
         title: { type: String, default: 'Selecione um registro' },
         items: { type: Array as PropType<Record<string, any>[]>, required: true },
