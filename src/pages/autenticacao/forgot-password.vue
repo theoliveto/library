@@ -1,20 +1,9 @@
 <template>
     <div class="mt-20">
-        <v-img
-            class="mx-auto my-6"
-            max-width="228"
-            src="/logo.png"
-        />
+        <v-img class="mx-auto my-6" max-width="228" src="/logo.png" />
 
-        <v-card
-            class="mx-auto pa-12 pb-8"
-            elevation="3"
-            max-width="448"
-            rounded="lg"
-        >
-            <div class="text-h6 mb-2">
-                Esqueci minha senha
-            </div>
+        <v-card class="mx-auto pa-12 pb-8" elevation="3" max-width="448" rounded="lg">
+            <div class="text-h6 mb-2">Esqueci minha senha</div>
 
             <div class="text-body-2 text-medium-emphasis mb-6">
                 Informe seu e-mail para receber as instruções
@@ -30,12 +19,7 @@
                 :disabled="carregando"
             />
 
-            <v-alert
-                v-if="mensagem"
-                class="mb-6"
-                :type="sucesso ? 'success' : 'error'"
-                variant="tonal"
-            >
+            <v-alert v-if="mensagem" class="mb-6" :type="sucesso ? 'success' : 'error'" variant="tonal">
                 {{ mensagem }}
             </v-alert>
 
@@ -56,9 +40,8 @@
                 block
                 :disabled="carregando"
                 @click="voltarLogin"
-            >
-                Voltar para o login
-            </v-btn>
+                text="Voltar para o login"
+            />
         </v-card>
     </div>
 </template>

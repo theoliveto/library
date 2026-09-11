@@ -32,7 +32,7 @@
 
             <DialogComponent
                 v-model="dialog"
-                v-model:active-switch="formModel.xAtivo"
+                v-model:active-switch="formModel.ativo"
                 v-model:tab-model="currentTab"
                 :tabs="tabsConfig"
                 :title="`${editando ? 'Editando' : 'Inserindo'} uma categoria`"
@@ -46,7 +46,7 @@
                                 <v-row class="mt-3">
                                     <v-col cols="12">
                                         <v-text-field
-                                            v-model="formModel.dsCategoria"
+                                            v-model="formModel.descricao"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -61,7 +61,7 @@
                                     <v-col cols="12" md="12">
                                         <v-textarea
                                             class="mt-n2"
-                                            v-model="formModel.dsObservacoes"
+                                            v-model="formModel.observacoes"
                                             label="Observações"
                                             row-height="25"
                                             rows="3"
@@ -105,20 +105,20 @@
                 registros: [] as ModelDto[],
 
                 formModel: {
-                    dsCategoria: '',
-                    dsObservacoes: '',
-                    xAtivo: true,
+                    descricao: '',
+                    observacoes: '',
+                    ativo: true,
                 } as ModelDto,
 
                 dialog: false,
 
                 headers: [
-                    { title: 'ID', key: 'cdCategoria' },
-                    { title: 'Nome', key: 'dsCategoria', align: 'start' },
+                    { title: 'ID', key: 'id' },
+                    { title: 'Descrição', key: 'descricao', align: 'start' },
                     { title: 'Ações', key: 'actions', align: 'end', sortable: false },
                 ] as TableHeader[],
 
-                ativo: false,
+                ativo: true,
 
                 visible: false,
 
@@ -157,7 +157,7 @@
 
         computed: {
             editando (): boolean {
-                return !!this.formModel.cdCategoria
+                return !!this.formModel.id
             },
 
             tableMeta() {
@@ -182,10 +182,10 @@
 
             novo(): ModelDto  {
                 return {
-                    cdCategoria: 0,
-                    dsCategoria: '',
-                    dsObservacoes: '',
-                    xAtivo: true,
+                    id: 0,
+                    descricao: '',
+                    observacoes: '',
+                    ativo: true,
                 }
             },
 
@@ -195,7 +195,7 @@
             },
 
             editar(id: number): void {
-                const found = this.registros.find(r => r.cdCategoria === id)
+                const found = this.registros.find(r => r.id === id)
                 if (!found) return
                 this.formModel = { ...found, }
                 this.dialog = true
@@ -227,9 +227,9 @@
 
             montarPayload(): ModelCreateDto {
                 return {
-                    dsCategoria: this.formModel.dsCategoria,
-                    dsObservacoes: this.formModel.dsObservacoes || null,
-                    xAtivo: this.formModel.xAtivo,
+                    descricao: this.formModel.descricao,
+                    observacoes: this.formModel.observacoes || null,
+                    ativo: this.formModel.ativo,
                 }
             },
 
@@ -238,7 +238,7 @@
                     const payload = this.montarPayload()
 
                     if (this.editando) {
-                        await modelService.atualizar(this.formModel.cdCategoria, payload)
+                        await modelService.atualizar(this.formModel.id, payload)
                         this.success('Registro atualizado com sucesso.')
                     } else {
                         await modelService.criar(payload)

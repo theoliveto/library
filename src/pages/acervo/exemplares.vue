@@ -32,7 +32,7 @@
 
             <DialogComponent
                 v-model="dialog"
-                v-model:active-switch="formModel.xAtivo"
+                v-model:active-switch="formModel.ativo"
                 v-model:tab-model="currentTab"
                 :tabs="tabsConfig"
                 :title="`${editando ? 'Editando' : 'Inserindo'} um exemplar`"
@@ -45,23 +45,23 @@
                             <template #default>
                                 <v-row class="mt-3">
                                     <v-col cols="12" md="6">
-                                        <v-text-field
-                                            v-model="formModel.cdLivro"
-                                            prepend-inner-icon="mdi-magnify"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
+                                        <SelectorField
+                                            v-model="formModel.livroId"
+                                            label="Livro"
+                                            title="Selecione um Livro"
+                                            :items="livros"
+                                            item-value="livroId"
+                                            item-title="livro"
+                                            required
                                             :rules="[required()]"
-                                        >
-                                            <template #label>
-                                                Livro <span class="text-error">*</span>
-                                            </template>
-                                        </v-text-field>
+                                            @select="(item: { livro: string | null }) => formModel.livro = item.livro"
+                                            @clear="formModel.livro = ''"
+                                        />
                                     </v-col>
 
                                     <v-col cols="6">
                                         <v-text-field
-                                            v-model="formModel.nrPatrimonio"
+                                            v-model="formModel.patrimonio"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -75,7 +75,7 @@
 
                                     <v-col cols="6">
                                         <v-text-field
-                                            v-model="formModel.dsLocalizacao"
+                                            v-model="formModel.localizacao"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -86,7 +86,7 @@
 
                                     <v-col cols="12" md="6">
                                         <v-text-field
-                                            v-model="formModel.nrEan"
+                                            v-model="formModel.ean"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -101,7 +101,7 @@
                                     <v-col cols="12" md="6">
                                         <v-date-input
                                             class="mt-n2"
-                                            v-model="formModel.dtAquisicao"
+                                            v-model="formModel.aquisicao"
                                             prepend-icon=""
                                             variant="outlined"
                                             clearable
@@ -115,7 +115,7 @@
                                     <v-col cols="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.vlAquisicao"
+                                            v-model="formModel.valorAquisicao"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -127,7 +127,7 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.dsStatus"
+                                            v-model="formModel.status"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -142,7 +142,7 @@
                                     <v-col cols="12" md="12">
                                         <v-textarea
                                             class="mt-n2"
-                                            v-model="formModel.dsObservacoes"
+                                            v-model="formModel.observacoes"
                                             label="Observações"
                                             row-height="25"
                                             rows="3"
@@ -178,8 +178,9 @@
     import TableComponent, { type TableHeader } from '@/components/TableComponent.vue'
     import DialogComponent, { type TabItem } from '@/components/DialogComponent.vue'
     import MessageComponent from '@/components/MessageComponent.vue'
+    import SelectorFieldComponent from '@/components/Forms/SelectorFieldComponent.vue'
 
-    type FormModel = Omit<ModelDto, 'dtAquisicao'> & { dtAquisicao: Date | null }
+    type FormModel = Omit<ModelDto, 'aquisicao'> & { aquisicao: Date | null }
 
     export default defineComponent ({
         name: 'ExemplaresPage',
@@ -190,6 +191,7 @@
             TableComponent,
             DialogComponent,
             MessageComponent,
+            SelectorFieldComponent,
         },
 
         setup() {
@@ -220,22 +222,29 @@
         data() {
             return {
                 search: '',
+                currentTab: 'dados-gerais',
+                dialog: false,
+                ativo: true,
+                visible: false,
+                messageDialog: false,
+                excluirRegistro: null as number | null,
 
                 registros: [] as ModelDto[],
+                livros: [] as { livroId: number; livro: string }[],
 
                 formModel: {
-                    cdLivro: 0,
-                    nrPatrimonio: '',
-                    dsLocalizacao: '',
-                    nrEan: '',
-                    dtAquisicao: null,
-                    vlAquisicao: null,
-                    dsStatus: '',
-                    dsObservacoes: '',
-                    xAtivo: true,
+                    id: 0,
+                    livroId: null,
+                    livro: '',
+                    patrimonio: '',
+                    localizacao: '',
+                    ean: '',
+                    aquisicao: null,
+                    valorAquisicao: 0,
+                    status: '',
+                    observacoes: '',
+                    ativo: true,
                 } as FormModel,
-
-                dialog: false,
 
                 headers: [
                     { title: 'ID', key: 'cdExemplar' },
@@ -245,24 +254,15 @@
                     { title: 'Ações', key: 'actions', align: 'end', sortable: false },
                 ] as TableHeader[],
 
-                ativo: true,
-
-                visible: false,
-
-                currentTab: 'dados-gerais',
-
                 tabsConfig: [
                     { title: 'Dados Gerais', value: 'dados-gerais' },
                 ] as TabItem[],
-
-                messageDialog: false,
-                excluirRegistro: null as number | null,
             }
         },
 
         computed: {
             editando (): boolean {
-                return !!this.formModel.cdExemplar
+                return !!this.formModel.id
             },
 
             tableMeta() {
@@ -272,7 +272,7 @@
             registrosFormatados (): ModelDto[] {
                 return this.registros.map(registro => ({
                     ...registro,
-                    dtFundacao: paraDataBR(registro.dtAquisicao),
+                    aquisicao: paraDataBR(registro.aquisicao),
                 }))
             },
         },
@@ -294,16 +294,17 @@
 
             novo(): FormModel  {
                 return {
-                    cdExemplar: 0,
-                    cdLivro: 0,
-                    nrPatrimonio: '',
-                    dsLocalizacao: '',
-                    nrEan: '',
-                    dtAquisicao: null,
-                    vlAquisicao: null,
-                    dsStatus: '',
-                    dsObservacoes: '',
-                    xAtivo: true,
+                    id: 0,
+                    livroId: null,
+                    livro: '',
+                    patrimonio: '',
+                    localizacao: '',
+                    ean: '',
+                    aquisicao: null,
+                    valorAquisicao: 0,
+                    status: '',
+                    observacoes: '',
+                    ativo: true,
                 }
             },
 
@@ -313,9 +314,12 @@
             },
 
             editar(id: number): void {
-                const found = this.registros.find(r => r.cdExemplar === id)
+                const found = this.registros.find(r => r.id === id)
                 if (!found) return
-                this.formModel = { ...found, dtAquisicao: found.dtAquisicao ? paraDate(found.dtAquisicao) : null }
+                this.formModel = { 
+                    ...found, 
+                    aquisicao: paraDate(found.aquisicao)
+                }
                 this.dialog = true
             },
 
@@ -345,15 +349,16 @@
 
             montarPayload(): ModelCreateDto {
                 return {
-                    cdLivro: this.formModel.cdLivro,
-                    nrPatrimonio: this.formModel.nrPatrimonio,
-                    dsLocalizacao: this.formModel.dsLocalizacao,
-                    nrEan: this.formModel.nrEan,
-                    dtAquisicao: paraIso(this.formModel.dtAquisicao as Date),
-                    vlAquisicao: this.formModel.vlAquisicao,
-                    dsStatus: this.formModel.dsStatus,
-                    dsObservacoes: this.formModel.dsObservacoes || null,
-                    xAtivo: this.formModel.xAtivo,
+                    livroId: this.formModel.livroId,
+                    livro: this.formModel.livro || null,
+                    patrimonio: this.formModel.patrimonio,
+                    localizacao: this.formModel.localizacao,
+                    ean: this.formModel.ean,
+                    aquisicao: paraIso(this.formModel.aquisicao as Date),
+                    valorAquisicao: this.formModel.valorAquisicao,
+                    status: this.formModel.status,
+                    observacoes: this.formModel.observacoes || null,
+                    ativo: this.formModel.ativo,
                 }
             },
 
@@ -362,7 +367,7 @@
                     const payload = this.montarPayload()
 
                     if (this.editando) {
-                        await modelService.atualizar(this.formModel.cdExemplar, payload)
+                        await modelService.atualizar(this.formModel.id, payload)
                         this.success('Registro atualizado com sucesso.')
                     } else {
                         await modelService.criar(payload)

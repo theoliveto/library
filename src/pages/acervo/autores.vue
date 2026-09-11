@@ -32,7 +32,7 @@
 
             <DialogComponent
                 v-model="dialog"
-                v-model:active-switch="formModel.xAtivo"
+                v-model:active-switch="formModel.ativo"
                 v-model:tab-model="currentTab"
                 :tabs="tabsConfig"
                 :title="`${editando ? 'Editando' : 'Inserindo'} um autor`"
@@ -46,7 +46,7 @@
                                 <v-row class="mt-3">
                                     <v-col cols="6">
                                         <v-text-field
-                                            v-model="formModel.dsAutor"
+                                            v-model="formModel.descricao"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -60,7 +60,7 @@
 
                                     <v-col cols="6">
                                         <v-date-input
-                                            v-model="formModel.dtNascimento"
+                                            v-model="formModel.nascimento"
                                             prepend-icon=""
                                             variant="outlined"
                                             clearable
@@ -78,7 +78,7 @@
                                     <v-col cols="6">
                                         <v-date-input
                                             class="mt-n2"
-                                            v-model="formModel.dtFalecimento"
+                                            v-model="formModel.falecimento"
                                             prepend-icon=""
                                             variant="outlined"
                                             clearable
@@ -92,7 +92,7 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.dsPais"
+                                            v-model="formModel.nacionalidade"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -106,7 +106,7 @@
 
                                     <v-select
                                         class="mt-n2"
-                                        v-model="formModel.dsGenero"
+                                        v-model="formModel.genero"
                                         :items="['Masculino', 'Feminino']"
                                         variant="outlined"
                                         persistent-placeholder
@@ -121,7 +121,7 @@
                                     <v-col cols="12" md="6">
                                         <v-text-field
                                             class="mt-n2"
-                                            v-model="formModel.dsSiteOficial"
+                                            v-model="formModel.siteOficial"
                                             variant="outlined"
                                             persistent-placeholder
                                             clearable
@@ -133,7 +133,7 @@
                                     <v-col cols="12" md="12">
                                         <v-textarea
                                             class="mt-n2"
-                                            v-model="formModel.dsObservacoes"
+                                            v-model="formModel.observacoes"
                                             label="Observações"
                                             row-height="25"
                                             rows="3"
@@ -157,7 +157,7 @@
 
 <script lang="ts">
     import { defineComponent } from 'vue'
-    import { modelService, type ModelDto, type ModelCreateDto } from '../../services/Autor/service.ts'
+    import { modelService, type ModelDto, type ModelCreateDto } from '../../services/Autores/service.ts'
     import { maxLength, required, textOnly } from '@/utils/validators.ts'
     import { paraIso, paraDate, paraDataBR } from '@/utils/dateConverter'
     import { useSnackbar } from '@/utils/useSnackbar'
@@ -168,9 +168,9 @@
     import DialogComponent, { type TabItem } from '@/components/DialogComponent.vue'
     import MessageComponent from '@/components/MessageComponent.vue'
 
-    type FormModel = Omit<ModelDto, 'dtNascimento'| 'dtFalecimento'> & { 
-        dtNascimento: Date | null 
-        dtFalecimento: Date | null
+    type FormModel = Omit<ModelDto, 'nascimento'| 'falecimento'> & { 
+        nascimento: Date | null 
+        falecimento: Date | null
     }
 
     export default defineComponent ({
@@ -205,28 +205,25 @@
                 registros: [] as ModelDto[],
 
                 formModel: {
-                    dsAutor: '',
-                    dtNascimento: null,
-                    dtFalecimento: null,
-                    dsPais: '',
-                    dsGenero: '',
-                    dsSiteOficial: '',
-                    imFoto: '',
-                    dsObservacoes: '',
-                    xAtivo: true,
+                    descricao: '',
+                    nascimento: null,
+                    falecimento: null,
+                    nacionalidade: '',
+                    genero: '',
+                    siteOficial: '',
+                    observacoes: '',
+                    ativo: true,
                 } as FormModel,
 
                 dialog: false,
 
                 headers: [
-                    { title: 'ID', key: 'cdAutor' },
-                    { title: 'Nome', key: 'dsAutor', align: 'start' },
-                    { title: 'Nascimento', key: 'dtNascimento' },
-                    { title: 'Nacionalidade', key: 'dsPais' },
+                    { title: 'ID', key: 'id' },
+                    { title: 'Descrição', key: 'descricao', align: 'start' },
                     { title: 'Ações', key: 'actions', align: 'end', sortable: false },
                 ] as TableHeader[],
 
-                ativo: false,
+                ativo: true,
 
                 visible: false,
 
@@ -243,7 +240,7 @@
 
         computed: {
             editando (): boolean {
-                return !!this.formModel.cdAutor
+                return !!this.formModel.id
             },
 
             tableMeta() {
@@ -253,8 +250,8 @@
             registrosFormatados (): ModelDto[] {
                 return this.registros.map(registro => ({
                     ...registro,
-                    dtNascimento: paraDataBR(registro.dtNascimento),
-                    dtFalecimento: paraDataBR(registro.dtFalecimento),
+                    nascimento: paraDataBR(registro.nascimento),
+                    falecimento: paraDataBR(registro.falecimento),
                 }))
             },
         },
@@ -276,16 +273,15 @@
 
             novo(): FormModel  {
                 return {
-                    cdAutor: 0,
-                    dsAutor: '',
-                    dtNascimento: null,
-                    dtFalecimento: null,
-                    dsPais: '',
-                    dsGenero: '',
-                    dsSiteOficial: '',
-                    imFoto: '',
-                    dsObservacoes: '',
-                    xAtivo: true,
+                    id: 0,
+                    descricao: '',
+                    nascimento: null,
+                    falecimento: null,
+                    nacionalidade: '',
+                    genero: '',
+                    siteOficial: '',
+                    observacoes: '',
+                    ativo: true,
                 }
             },
 
@@ -295,12 +291,12 @@
             },
 
             editar(id: number): void {
-                const found = this.registros.find(r => r.cdAutor === id)
+                const found = this.registros.find(r => r.id === id)
                 if (!found) return
                 this.formModel = { 
                     ...found, 
-                    dtNascimento: paraDate(found.dtNascimento), 
-                    dtFalecimento: found.dtFalecimento ? paraDate(found.dtFalecimento) : null
+                    nascimento: paraDate(found.nascimento), 
+                    falecimento: found.falecimento ? paraDate(found.falecimento) : null
                 }
                 this.dialog = true
             },
@@ -331,15 +327,14 @@
 
             montarPayload(): ModelCreateDto {
                 return {
-                    dsAutor: this.formModel.dsAutor,
-                    dtNascimento: paraIso(this.formModel.dtNascimento as Date),
-                    dtFalecimento: this.formModel.dtFalecimento ? paraIso(this.formModel.dtFalecimento as Date): null,
-                    dsPais: this.formModel.dsPais,
-                    dsGenero: this.formModel.dsGenero,
-                    dsSiteOficial: this.formModel.dsSiteOficial,
-                    imFoto: this.formModel.imFoto || null,
-                    dsObservacoes: this.formModel.dsObservacoes || null,
-                    xAtivo: this.formModel.xAtivo,
+                    descricao: this.formModel.descricao,
+                    nascimento: paraIso(this.formModel.nascimento as Date),
+                    falecimento: this.formModel.falecimento ? paraIso(this.formModel.falecimento as Date): null,
+                    nacionalidade: this.formModel.nacionalidade,
+                    genero: this.formModel.genero,
+                    siteOficial: this.formModel.siteOficial || null,
+                    observacoes: this.formModel.observacoes || null,
+                    ativo: this.formModel.ativo,
                 }
             },
 
@@ -348,7 +343,7 @@
                     const payload = this.montarPayload()
 
                     if (this.editando) {
-                        await modelService.atualizar(this.formModel.cdAutor, payload)
+                        await modelService.atualizar(this.formModel.id, payload)
                         this.success('Registro atualizado com sucesso.')
                     } else {
                         await modelService.criar(payload)

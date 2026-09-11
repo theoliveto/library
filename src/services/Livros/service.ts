@@ -1,28 +1,27 @@
 import { api } from '../api'
 
 export interface ModelDto {
-    cdLivro: number
-    dsLivro: string
-    dsSubtitulo: string | null
-    cdAutor: number | null
-    dsAutor: string | null
-    cdEditora: number | null
-    dsEditora: string | null
-    nrIsbn10: string
-    nrIsbn13: string
-    dsIdioma: string
-    nrEdicao: string | null
-    nrPaginas: string 
-    dtPublicacao: string
-    cdCategoria: number | null
-    dsCategoria: string | null
-    dsSinopse: string | null
-    imLivro: string | null
-    dsObservacoes: string | null
-    xAtivo: boolean
+    id: number
+    descricao: string
+    subtitulo: string | null
+    autorId: number | null
+    autor: string | null
+    editoraId: number | null
+    editora: string | null
+    categoriaId: number | null
+    categoria: string | null
+    isbn: string
+    idioma: string
+    edicao: string | null
+    paginas: string 
+    publicacao: string
+    sinopse: string | null
+    imagemCapa: string | null
+    observacoes: string | null
+    ativo: boolean
 }
 
-export type ModelCreateDto = Omit<ModelDto, 'cdLivro'>
+export type ModelCreateDto = Omit<ModelDto, 'id'>
 export type ModelUpdateDto = ModelCreateDto
 
 export const modelService = {

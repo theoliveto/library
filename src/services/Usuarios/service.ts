@@ -1,18 +1,19 @@
 import { api } from '../api'
 
 export interface ModelDto {
-    cdUsuario: number
-    dsUsuario: string
-    dsLogin: string
-    dsEmail: string
-    dsSenha: string
-    dsObservacoes: string | null
-    xAtivo: boolean
-    xAdministrador: boolean
-    imPerfil: string | null
+    id: number
+    descricao: string
+    login: string
+    email: string
+    senha: string
+    perfil: string
+    avatar: string | null
+    administrador: boolean
+    observacoes: string | null
+    ativo: boolean
 }
 
-export type ModelCreateDto = Omit<ModelDto, 'cdUsuario'>
+export type ModelCreateDto = Omit<ModelDto, 'id'>
 export type ModelUpdateDto = ModelCreateDto
 
 export const modelService = {

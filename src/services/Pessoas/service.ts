@@ -1,32 +1,35 @@
 import { api } from '../api'
 
-export interface PessoaDto {
-    cdPessoa: number
-    dsPessoa: string
-    nrCpf: string
-    dsEmail: string
-    nrTelefone: string
-    dtNascimento: string
-    dsGenero: string
-    dsObservacoes: string | null
-    xAtivo: boolean
-    nrCep: string
-    dsCidade: string
-    dsEstado: string
-    dsEndereco: string
-    dsBairro: string
-    nrNumero: string | null
-    dsComplemento: string | null
+export interface ModelDto {
+    id: number
+    descricao: string
+    razaoSocial: string
+    usuarioId: number
+    cpfCnpj: string
+    email: string
+    celular: string
+    telefone: string
+    nascimento: string
+    genero: string
+    cep: string
+    endereco: string
+    cidade: string
+    estado: string
+    bairro: string
+    numero: string | null
+    complemento: string | null
+    observacoes: string | null
+    ativo: boolean
 }
 
-export type PessoaCreateDto = Omit<PessoaDto, 'cdPessoa'>
-export type PessoaUpdateDto = PessoaCreateDto
+export type ModelCreateDto = Omit<ModelDto, 'id'>
+export type ModelUpdateDto = ModelCreateDto
 
-export const pessoaService = {
-    obterTodos: () => api.get<PessoaDto[]>('/pessoas').then(r => r.data),
-    obterPorId: (id: number) => api.get<PessoaDto>(`/pessoas/${id}`).then(r => r.data),
-    criar: (dto: PessoaCreateDto) => api.post<PessoaDto>('/pessoas', dto).then(r => r.data),
-    atualizar: (id: number, dto: PessoaUpdateDto) => api.put(`/pessoas/${id}`, dto),
+export const modelService = {
+    obterTodos: () => api.get<ModelDto[]>('/pessoas').then(r => r.data),
+    obterPorId: (id: number) => api.get<ModelDto>(`/pessoas/${id}`).then(r => r.data),
+    criar: (dto: ModelCreateDto) => api.post<ModelDto>('/pessoas', dto).then(r => r.data),
+    atualizar: (id: number, dto: ModelUpdateDto) => api.put(`/pessoas/${id}`, dto),
     excluir: (id: number) => api.delete(`/pessoas/${id}`),
 
     async verificarCpf(cpf: string, cdPessoa?: number) {

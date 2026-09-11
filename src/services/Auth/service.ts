@@ -6,11 +6,12 @@ export interface LoginRequest {
 }
 
 export interface UsuarioAuthDto {
-    cdUsuario: number
-    dsUsuario: string
-    dsLogin: string
-    dsEmail: string
-    xAdministrador: boolean
+    id: number
+    descricao: string
+    login: string
+    email: string
+    perfil: string
+    administrador: boolean
 }
 
 export interface LoginResponse {
@@ -28,7 +29,6 @@ export interface ResetPasswordRequest {
 }
 
 export const authService = {
-
     async login(dto: LoginRequest): Promise<LoginResponse> {
         const response = await api.post('/auth/login', dto)
     
@@ -38,11 +38,12 @@ export const authService = {
             token: data.token,
     
             usuario: {
-                cdUsuario: data.usuario.cD_USUARIO,
-                dsUsuario: data.usuario.dS_USUARIO,
-                dsLogin: data.usuario.dS_LOGIN,
-                dsEmail: data.usuario.dS_EMAIL,
-                xAdministrador: data.usuario.x_ADMINISTRADOR,
+                id: data.usuario.id,
+                descricao: data.usuario.descricao,
+                login: data.usuario.login,
+                email: data.usuario.email,
+                perfil: data.usuario.perfil,
+                administrador: data.usuario.administrador,
             }
         }
     },
@@ -53,11 +54,12 @@ export const authService = {
         const usuario = response.data
     
         return {
-            cdUsuario: usuario.cD_USUARIO,
-            dsUsuario: usuario.dS_USUARIO,
-            dsLogin: usuario.dS_LOGIN,
-            dsEmail: usuario.dS_EMAIL,
-            xAdministrador: usuario.x_ADMINISTRADOR,
+            id: usuario.cD_USUARIO,
+            descricao: usuario.descricao,
+            login: usuario.login,
+            email: usuario.email,
+            perfil: usuario.perfil,
+            administrador: usuario.administrador,
         }
     },
 
