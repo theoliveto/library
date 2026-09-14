@@ -40,7 +40,7 @@ export default defineComponent({
         label: { type: String, required: true },
         title: { type: String, default: 'Selecione um registro' },
         items: { type: Array as PropType<Record<string, any>[]>, required: true },
-        itemValue: { type: String, default: 'codigo' },
+        itemValue: { type: String, default: 'id' },
         itemTitle: { type: String, default: 'descricao' },
         required: { type: Boolean, default: false },
         rules: { type: Array as PropType<((v: any) => true | string)[]>, default: () => [] },

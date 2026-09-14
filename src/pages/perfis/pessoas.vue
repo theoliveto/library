@@ -78,11 +78,11 @@
                                             label="Usuário"
                                             title="Selecione um Usuário"
                                             :items="usuarios"
-                                            item-value="usuarioId"
-                                            item-title="usuario"
+                                            item-value="id"
+                                            item-title="descricao"
                                             required
                                             :rules="[required()]"
-                                            @select="(item: { usuario: string | null }) => formModel.usuario = item.usuario"
+                                            @select="(item: UsuarioDto) => formModel.usuario = item.descricao"
                                             @clear="formModel.usuario = ''"
                                         />
                                     </v-col>
@@ -308,6 +308,7 @@
 <script lang="ts">
     import { defineComponent } from 'vue'
     import { modelService, type ModelDto, type ModelCreateDto } from '../../services/Pessoas/service.ts'
+    import { modelService as usuarioService, type ModelDto as UsuarioDto } from '../../services/Usuarios/service.ts'
     import { paraIso, paraDate, paraDataBR } from '@/utils/dateConverter'
     import { cepMask, cpfMask, dateMask, numberMask, onlyNumbers, phoneFlexibleMask, phoneMask } from '@/utils/masks.ts'
     import { cep, cpf, decimal, email, integer, maxLength, minLength, numeric, phone, required, textOnly } from '@/utils/validators.ts'
@@ -378,7 +379,7 @@
                 excluirRegistro: null as number | null,
 
                 registros: [] as ModelDto[],
-                usuarios: [] as { usuarioId: number; usuario: string }[],
+                usuarios: [] as UsuarioDto[],
 
                 formModel: {
                     id: 0,
@@ -468,6 +469,7 @@
         async mounted () {
             document.title = this.$route.meta.title as string
             await this.carregarRegistros()
+            await this.carregarUsuarios()
         },
 
         methods: {
@@ -477,6 +479,15 @@
                 } catch (error) {
                     console.error('Erro ao carregar registros:', error)
                     this.error('Erro ao carregar registros.')
+                }
+            },
+
+            async carregarUsuarios (): Promise<void> {
+                try {
+                    this.usuarios = await usuarioService.obterTodos()
+                } catch (error) {
+                    console.error('Erro ao carregar usuários:', error)
+                    this.error('Erro ao carregar usuários.')
                 }
             },
 

@@ -120,6 +120,15 @@
                                             </template>
                                         </v-select>
                                     </v-col>
+
+                                    <v-col cols="12" md="6">
+                                        <v-checkbox
+                                            v-model="formModel.administrador"
+                                            label="Administrador"
+                                            density="compact"
+                                            color="primary"
+                                        />
+                                    </v-col>
                                     
                                     <v-col cols="12" md="12">
                                         <v-textarea
@@ -132,15 +141,6 @@
                                             persistent-placeholder
                                             clearable
                                             :rules="[maxLength(500)]"
-                                        />
-                                    </v-col>
-
-                                    <v-col cols="12" md="6">
-                                        <v-checkbox
-                                            v-model="formModel.administrador"
-                                            label="Administrador"
-                                            density="compact"
-                                            color="primary"
                                         />
                                     </v-col>
                                 </v-row>
