@@ -23,7 +23,7 @@
 
         components: {
             HeaderComponent,
-            FooterComponent,
+            FooterComponent
         },
 
         mounted () {

@@ -45,31 +45,20 @@
                             <template #default>
                                 <v-row class="mt-3">
                                     <v-col cols="6">
-                                        <v-text-field
+                                        <TextFieldComponent
                                             v-model="formModel.descricao"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                            :rules="[required(), textOnly(), maxLength(150)]"
-                                        >
-                                            <template #label>
-                                                Nome <span class="text-error">*</span>
-                                            </template>
-                                        </v-text-field>
+                                            label="Nome"
+                                            required
+                                            :rules="[textOnly(), maxLength(150)]"
+                                        />
                                     </v-col>
 
                                     <v-col cols="6">
-                                        <v-text-field
+                                        <TextFieldComponent
                                             v-model="formModel.razaoSocial"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                            :rules="[required(), textOnly(), maxLength(150)]"
-                                        >
-                                            <template #label>
-                                                Razão Social <span class="text-error">*</span>
-                                            </template>
-                                        </v-text-field>
+                                            label="Razão Social"
+                                            :rules="[textOnly(), maxLength(150)]"
+                                        />
                                     </v-col>
 
                                     <v-col cols="6">
@@ -88,35 +77,19 @@
                                     </v-col>
 
                                     <v-col cols="6">
-                                        <v-text-field
+                                        <CpfCnpjFieldComponent
                                             v-model="formModel.cpfCnpj"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                            :rules="[required(), cpf()]"
-                                            :error-messages="cpfError"
-                                            @update:model-value="value => formModel.cpfCnpj = cpfMask(value)"
-                                        >
-                                            <template #label>
-                                                CPF <span class="text-error">*</span>
-                                            </template>
-                                        </v-text-field>
+                                            :cnpj="pessoaJuridica"
+                                            :error-messages="cpfCnpjError"
+                                        />
                                     </v-col>
 
                                     <v-col cols="12" md="6">
-                                        <v-text-field
-                                            class="mt-n2"
+                                        <CampoEmail
                                             v-model="formModel.email"
-                                            variant="outlined"
-                                            persistent-placeholder
-                                            clearable
-                                            :rules="[required(), email(), maxLength(100)]"
+                                            required
                                             :error-messages="emailError"
-                                        >
-                                            <template #label>
-                                                E-mail <span class="text-error">*</span>
-                                            </template>
-                                        </v-text-field>
+                                        />
                                     </v-col>
 
                                     <v-col cols="12" md="6">
@@ -149,21 +122,13 @@
                                     </v-col>
 
                                     <v-col cols="12" md="6">
-                                        <v-date-input
-                                            class="mt-n2"
+                                        <DataFieldComponent
                                             v-model="formModel.nascimento"
-                                            prepend-icon=""
-                                            variant="outlined"
-                                            clearable
-                                            locale="pt-BR"
-                                            display-format="dd/MM/yyyy"
-                                            persistent-placeholder
+                                            class="mt-n2"
+                                            label="Dt. Nascimento"
+                                            required
                                             :rules="[required()]"
-                                        >
-                                            <template #label>
-                                                Dt. Nascimento <span class="text-error">*</span>
-                                            </template>
-                                        </v-date-input>
+                                        />
                                     </v-col>
 
                                     <v-col cols="12" md="6">
@@ -322,6 +287,9 @@
     import SelectorFieldComponent from '@/components/Forms/SelectorFieldComponent.vue'
     import CepFieldComponent from '@/components/Forms/CepFieldComponent.vue'
     import type { EnderecoViaCep } from '@/components/Forms/CepFieldComponent.vue'
+    import DataFieldComponent from '@/components/Forms/DataFieldComponent.vue'
+    import TextFieldComponent from '@/components/Forms/TextFieldComponent.vue'
+    import CpfCnpjFieldComponent from '@/components/Forms/CpfCnpjFieldComponent.vue'
 
     type FormModel = Omit<ModelDto, 'nascimento'> & { nascimento: Date | null }
 
@@ -335,7 +303,10 @@
             DialogComponent,
             MessageComponent,
             SelectorFieldComponent,
-            CepFieldComponent
+            CepFieldComponent,
+            DataFieldComponent,
+            TextFieldComponent,
+            CpfCnpjFieldComponent,
         },
 
         setup () {
@@ -370,7 +341,7 @@
 
         data () {
             return {
-                cpfError: '',
+                cpfCnpjError: '',
                 emailError: '',
                 dialog: false,
                 ativo: true,
@@ -464,6 +435,21 @@
                     nascimento: paraDataBR(registro.nascimento),
                 }))
             },
+
+            pessoaJuridica(): boolean {
+                return !!this.formModel.razaoSocial?.trim()
+            }
+        },
+
+        watch: {
+            'formModel.razaoSocial'(novoValor, valorAnterior) {
+                const eraPessoaJuridica = !!valorAnterior?.trim()
+                const ehPessoaJuridica = !!novoValor?.trim()
+
+                if (eraPessoaJuridica !== ehPessoaJuridica) {
+                    this.formModel.cpfCnpj = ''
+                }
+            }
         },
 
         async mounted () {
@@ -608,7 +594,7 @@
             alterarCpf(value: string) {
                 this.formModel.cpfCnpj = cpfMask(value)
 
-                this.cpfError = ''
+                this.cpfCnpjError = ''
 
                 const cpfLimpo = this.formModel.cpfCnpj.replace(/\D/g, '')
 
@@ -628,7 +614,7 @@
                     )
 
                     if (response.existe) {
-                        this.cpfError = 'Este CPF já está cadastrado.'
+                        this.cpfCnpjError = 'Este CPF já está cadastrado.'
                     }
 
                 } catch (error) {

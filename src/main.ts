@@ -3,6 +3,8 @@ import { createPinia } from 'pinia'
 import { registerPlugins } from '@/plugins'
 import { useAuthStore } from '@/stores/auth'
 
+import './styles/tailwind.css'
+
 import App from './App.vue'
 
 import VueApexCharts from 'vue3-apexcharts'
